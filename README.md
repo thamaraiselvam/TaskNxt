@@ -37,10 +37,7 @@
 ## Demo
 
 <p align="center">
-  <video src="https://raw.githubusercontent.com/thamaraiselvam/tasknxt/main/docs/screenshots/demo.mp4" width="640" controls muted playsinline>
-    Your browser doesn't support embedded videos.
-    Watch it directly: docs/screenshots/demo.mp4
-  </video>
+  <img src="docs/screenshots/demo.gif" alt="TaskNxt workflow demo: menu bar popover, lanes, and tabs" width="640">
 </p>
 
 <br>
