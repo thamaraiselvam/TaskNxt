@@ -33,7 +33,6 @@
 
 ```bash
 brew install thamaraiselvam/tasknxt/tasknxt
-open /Applications/TaskNxt.app
 ```
 
 `brew upgrade` picks up new releases automatically — the tap is updated by CI
