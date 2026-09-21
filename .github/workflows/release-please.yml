@@ -1,0 +1,27 @@
+name: release-please
+
+# Watches merges to main, uses Conventional Commits (feat:/fix:/etc.) to
+# compute the next semver, and keeps an open "release PR" with the version
+# bump + generated CHANGELOG. Merging that PR makes release-please push a
+# vX.Y.Z tag (but NOT a GitHub Release itself — see skip-github-release
+# below). That tag push is what triggers build-and-release.yml, which
+# builds the signed .dmg and publishes the actual GitHub Release with the
+# installer attached.
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: googleapis/release-please-action@v4
+        with:
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+          skip-github-release: true

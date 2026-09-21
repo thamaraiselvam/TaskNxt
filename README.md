@@ -152,6 +152,19 @@ settings) are tracked as change proposals under `openspec/changes/`.
 
 <br>
 
+## Releasing
+
+Releases are fully automated with [release-please](https://github.com/googleapis/release-please) — no manual tagging required:
+
+1. Commit to `main` using [Conventional Commits](https://www.conventionalcommits.org/) (`feat:`, `fix:`, `docs:`, `ci:`, etc. — already the convention used in this repo).
+2. On every push to `main`, the `release-please` workflow inspects new commits and keeps an up-to-date **release PR** open with the next version bump and a generated `CHANGELOG.md` entry (`feat:` → minor, `fix:` → patch, `!`/`BREAKING CHANGE:` → major).
+3. Merging that release PR makes release-please push a `vX.Y.Z` tag.
+4. The tag push triggers `build-and-release.yml`, which builds the universal `.dmg`, runs tests, and publishes the GitHub Release with the installer attached.
+
+So shipping a release is just: merge normal PRs with conventional commit titles, then merge the auto-generated release PR when you're ready to cut a version.
+
+<br>
+
 ## License
 
 MIT — see [LICENSE](LICENSE).
