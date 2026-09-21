@@ -10,6 +10,9 @@
 </p>
 
 <p align="center">
+  <a href="https://github.com/thamaraiselvam/tasknxt/actions/workflows/build-and-release.yml"><img src="https://img.shields.io/github/actions/workflow/status/thamaraiselvam/tasknxt/build-and-release.yml?branch=main&style=flat-square&label=build" alt="Build status"></a>
+  <a href="https://github.com/thamaraiselvam/tasknxt/releases/latest"><img src="https://img.shields.io/github/v/release/thamaraiselvam/tasknxt?style=flat-square&label=release&include_prereleases" alt="Latest release"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/thamaraiselvam/tasknxt?style=flat-square" alt="License"></a>
   <img src="https://img.shields.io/badge/macOS%2013+-111?style=flat-square&logo=apple&logoColor=fff" alt="macOS 13+">
   <img src="https://img.shields.io/badge/Swift%205.9-111?style=flat-square&logo=swift&logoColor=F05138" alt="Swift 5.9">
   <img src="https://img.shields.io/badge/Free-00D4AA?style=flat-square" alt="Free">
