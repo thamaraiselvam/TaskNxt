@@ -1,0 +1,135 @@
+name: Build and Release macOS App
+
+# Builds TaskNxt.app as a universal (Apple Silicon + Intel) binary, packages
+# it into a distributable, double-clickable .dmg, and:
+#   - on every push/PR: builds + runs tests, uploads the .dmg as a workflow
+#     artifact so it can be sanity-checked without cutting a release.
+#   - on a pushed tag matching v*.*.*: additionally publishes a GitHub
+#     Release with the universal .dmg attached.
+#
+# All packaging logic lives in this workflow (no separate CI-only shell
+# scripts) so the whole release pipeline is visible and editable in one
+# place.
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*.*.*"]
+  pull_request:
+    branches: [main]
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+env:
+  APP_NAME: TaskNxt
+
+jobs:
+  build:
+    name: Build, test, and package
+    runs-on: macos-14
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Show Xcode / Swift versions
+        run: |
+          xcodebuild -version
+          swift --version
+
+      - name: Run tests
+        run: swift test
+
+      - name: Determine version
+        id: version
+        run: |
+          if [[ "${GITHUB_REF}" == refs/tags/v* ]]; then
+            VERSION="${GITHUB_REF#refs/tags/v}"
+          else
+            VERSION="0.0.0-dev.$(git rev-parse --short HEAD)"
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Stamp app version
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          SHORT_VERSION="${VERSION%%-*}"
+          /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString $SHORT_VERSION" Sources/TaskNxt/App/Info.plist
+          /usr/libexec/PlistBuddy -c "Set :CFBundleVersion $VERSION" Sources/TaskNxt/App/Info.plist
+
+      - name: Build universal release binary (arm64 + x86_64)
+        run: swift build -c release --arch arm64 --arch x86_64
+
+      - name: Assemble TaskNxt.app bundle
+        run: |
+          set -euo pipefail
+          BUILD_DIR=".build/apple/Products/release"
+          APP_BUNDLE=".build/${APP_NAME}.app"
+
+          rm -rf "$APP_BUNDLE"
+          mkdir -p "$APP_BUNDLE/Contents/MacOS" "$APP_BUNDLE/Contents/Resources"
+
+          cp "$BUILD_DIR/${APP_NAME}" "$APP_BUNDLE/Contents/MacOS/${APP_NAME}"
+          cp "Sources/TaskNxt/App/Info.plist" "$APP_BUNDLE/Contents/Info.plist"
+
+          for res in "$BUILD_DIR"/*.bundle; do
+            [ -e "$res" ] && cp -R "$res" "$APP_BUNDLE/Contents/Resources/"
+          done
+
+          echo "==> Verifying universal binary architectures"
+          lipo -archs "$APP_BUNDLE/Contents/MacOS/${APP_NAME}"
+
+      - name: Generate app icon (.icns)
+        run: |
+          set -euo pipefail
+          APP_BUNDLE=".build/${APP_NAME}.app"
+          ICONSET_SRC="Resources/Assets.xcassets/AppIcon.appiconset"
+          ICONSET_TMP="$(mktemp -d)/AppIcon.iconset"
+
+          cp -R "$ICONSET_SRC" "$ICONSET_TMP"
+          rm -f "$ICONSET_TMP/Contents.json"
+          iconutil -c icns "$ICONSET_TMP" -o "$APP_BUNDLE/Contents/Resources/AppIcon.icns"
+
+      - name: Ad-hoc sign app bundle
+        run: codesign --force --deep --sign - ".build/${APP_NAME}.app"
+
+      - name: Create installable .dmg
+        run: |
+          set -euo pipefail
+          APP_BUNDLE=".build/${APP_NAME}.app"
+          STAGING_DIR="$(mktemp -d)/dmg-staging"
+          DMG_NAME="${APP_NAME}-${{ steps.version.outputs.version }}.dmg"
+
+          mkdir -p "$STAGING_DIR"
+          cp -R "$APP_BUNDLE" "$STAGING_DIR/"
+          ln -s /Applications "$STAGING_DIR/Applications"
+
+          hdiutil create \
+            -volname "$APP_NAME" \
+            -srcfolder "$STAGING_DIR" \
+            -ov -format UDZO \
+            ".build/$DMG_NAME"
+
+          echo "DMG_PATH=.build/$DMG_NAME" >> "$GITHUB_ENV"
+          echo "DMG_NAME=$DMG_NAME" >> "$GITHUB_ENV"
+
+      - name: Upload .dmg artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.DMG_NAME }}
+          path: app/${{ env.DMG_PATH }}
+          retention-days: 14
+
+      - name: Publish GitHub Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          gh release create "${GITHUB_REF#refs/}" \
+            "${DMG_PATH}#${APP_NAME} universal installer (Apple Silicon + Intel)" \
+            --title "${APP_NAME} ${{ steps.version.outputs.version }}" \
+            --generate-notes
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
