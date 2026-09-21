@@ -35,6 +35,9 @@ jobs:
     defaults:
       run:
         working-directory: app
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      dmg_name: ${{ steps.release.outputs.dmg_name }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -127,6 +130,11 @@ jobs:
           path: app/${{ env.DMG_PATH }}
           retention-days: 14
 
+      - name: Record release outputs
+        if: startsWith(github.ref, 'refs/tags/v')
+        id: release
+        run: echo "dmg_name=${DMG_NAME}" >> "$GITHUB_OUTPUT"
+
       - name: Publish GitHub Release
         if: startsWith(github.ref, 'refs/tags/v')
         run: |
@@ -170,3 +178,59 @@ jobs:
           fi
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  homebrew:
+    name: Update Homebrew tap
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: macos-15
+    env:
+      HOMEBREW_NO_AUTO_UPDATE: 1
+      HOMEBREW_NO_ANALYTICS: 1
+    steps:
+      # `brew tap` clones into Homebrew's own managed directory
+      # ($(brew --repository thamaraiselvam/tasknxt)) rather than operating on
+      # whatever path/URL you give it - and `brew bump-cask-pr` always edits
+      # that managed clone, never an unrelated actions/checkout'd folder. So
+      # we tap directly from GitHub (embedding the token in the remote URL
+      # for push access) and commit/push from that same managed clone,
+      # instead of checking out the tap separately and expecting bump-cask-pr
+      # to edit it.
+      - name: Tap thamaraiselvam/homebrew-tasknxt (with push access)
+        run: |
+          brew tap thamaraiselvam/tasknxt \
+            "https://x-access-token:${HOMEBREW_TAP_TOKEN}@github.com/thamaraiselvam/homebrew-tasknxt.git"
+          echo "TAP_DIR=$(brew --repository thamaraiselvam/tasknxt)" >> "$GITHUB_ENV"
+        env:
+          HOMEBREW_TAP_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+
+      - name: Bump Cask (write-only, no PR)
+        run: |
+          set -euo pipefail
+          VERSION="${{ needs.build.outputs.version }}"
+          DMG_NAME="${{ needs.build.outputs.dmg_name }}"
+          DMG_URL="https://github.com/${GITHUB_REPOSITORY}/releases/download/v${VERSION}/${DMG_NAME}"
+
+          brew bump-cask-pr \
+            --write-only \
+            --no-audit \
+            --no-browse \
+            --version="$VERSION" \
+            --url="$DMG_URL" \
+            thamaraiselvam/tasknxt/tasknxt
+        env:
+          HOMEBREW_GITHUB_API_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+
+      - name: Commit and push updated Cask
+        working-directory: ${{ env.TAP_DIR }}
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if git diff --quiet; then
+            echo "No Cask changes to commit."
+            exit 0
+          fi
+          git add Casks/tasknxt.rb
+          git commit -m "chore: update tasknxt to ${{ needs.build.outputs.version }}"
+          git push origin HEAD:main

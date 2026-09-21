@@ -67,6 +67,22 @@
 
 ## Install
 
+### Homebrew
+
+```bash
+brew install thamaraiselvam/tasknxt/tasknxt
+open /Applications/TaskNxt.app
+```
+
+`brew upgrade` picks up new releases automatically — the tap is updated by CI
+as soon as a new version is published, no manual re-download needed.
+
+> TaskNxt is ad-hoc signed, not notarized, so on first launch Gatekeeper will
+> block it as from an "unidentified developer." Right-click `TaskNxt.app` in
+> Finder → **Open** → **Open** (or run
+> `xattr -d com.apple.quarantine /Applications/TaskNxt.app`) once to allow it —
+> the same one-time step needed for the manual `.dmg` download below.
+
 ### Build from source
 
 ```bash
