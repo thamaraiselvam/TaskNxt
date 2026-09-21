@@ -76,16 +76,13 @@ struct LocalStoreTests {
               "id": "\\(tabID.uuidString)",
               "name": "Work",
               "order": 0,
-              "tasks": [
-                "now",
-                [
+              "tasks": {
+                "now": [
                   { "id": "\\(taskID.uuidString)", "text": "Legacy task", "order": 0 }
                 ],
-                "nxt",
-                [],
-                "ltr",
-                []
-              ]
+                "nxt": [],
+                "ltr": []
+              }
             }
           ],
           "settings": {
