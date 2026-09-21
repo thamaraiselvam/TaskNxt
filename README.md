@@ -1,14 +1,24 @@
-# TaskNxt
+<p align="center">
+  <img src="docs/screenshots/cover.png" alt="TaskNxt — clear your mind, next task is one click away" width="760" />
+</p>
 
-**TaskNxt** is a free, native, menu-bar-only to-do app for macOS. It lives quietly
-in your menu bar and gives you three simple lanes — **Now**, **Nxt**, and **Ltr** —
-to organize what matters today, what's coming next, and what can wait.
-
-No accounts. No cloud. No tracking. Just a fast local task list, one keystroke away.
+<h1 align="center">TaskNxt</h1>
 
 <p align="center">
-  <img src="docs/screenshots/menubar-hero.png" alt="TaskNxt popover open from the macOS menu bar" width="760">
+  <strong>Three lanes. One popover. Zero accounts.</strong><br>
+  <em>Now, Nxt, and Ltr — organize what matters today, what's coming next, and what can wait.</em>
 </p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/macOS%2013+-111?style=flat-square&logo=apple&logoColor=fff" alt="macOS 13+">
+  <img src="https://img.shields.io/badge/Swift%205.9-111?style=flat-square&logo=swift&logoColor=F05138" alt="Swift 5.9">
+  <img src="https://img.shields.io/badge/Free-00D4AA?style=flat-square" alt="Free">
+  <img src="https://img.shields.io/badge/100%25%20Local-111?style=flat-square" alt="100% Local">
+</p>
+
+---
+
+> You could juggle a dozen browser tabs, a sticky note app, and a reminders list. Or you could press one hotkey and see Now, Nxt, and Ltr.
 
 ## Features
 
@@ -22,32 +32,38 @@ No accounts. No cloud. No tracking. Just a fast local task list, one keystroke a
 - 🔒 **100% local** — all data stays on your Mac; no network calls, no sign-in, no analytics
 - 🚀 **Launch at login** support
 
-## Screenshots
+<br>
 
-| Dark mode | Light mode |
-| --- | --- |
-| ![Popover in dark mode](docs/screenshots/popover-dark.png) | ![Popover in light mode](docs/screenshots/popover-light.png) |
+## Demo
 
 <p align="center">
-  <img src="docs/screenshots/settings-dark.png" alt="TaskNxt settings: hotkey, launch at login, retention, and tab management" width="420"><br>
-  <sub>Settings — hotkey recorder, launch at login, retention period, and tab management</sub>
+  <video src="https://raw.githubusercontent.com/thamaraiselvam/tasknxt/main/docs/screenshots/demo.mp4" width="640" controls muted playsinline>
+    Your browser doesn't support embedded videos.
+    Watch it directly: docs/screenshots/demo.mp4
+  </video>
 </p>
 
-> **Note:** These screenshots are polished mockups generated to accurately reflect
-> TaskNxt's current SwiftUI layout and color palette (they were not captured from a
-> live screen recording session). Build and run the app locally to see the real thing!
+<br>
 
-## Getting started
+## Usage
 
-### Requirements
+| Action | How |
+|--------|-----|
+| Open popover | Click the checklist icon in the menu bar |
+| Quick open | Global hotkey (default `⌃Q` / Control+Q) |
+| Add a task | Click "+ add to now..." (or nxt / ltr) in a lane |
+| Reorder / retriage | Drag a task within or across lanes |
+| Change hotkey, tabs, retention | Menu bar → Settings… |
 
-- macOS 13 (Ventura) or later
-- Xcode 15+ (or the Swift 5.9+ toolchain) to build from source
+<br>
 
-### Build & run
+## Install
+
+### Build from source
 
 ```bash
-cd app
+git clone git@github.com:thamaraiselvam/tasknxt.git
+cd tasknxt/app
 ./Scripts/build_app.sh
 open .build/TaskNxt.app
 ```
@@ -61,8 +77,10 @@ so the app shows a generic icon.
 Alternatively, open `app/Package.swift` in Xcode and run the `TaskNxt` scheme
 directly for the fastest edit/debug loop (same generic-icon caveat applies).
 
-Once running, click the checklist icon in your menu bar to open the popover, or
-press the global hotkey (default: **⌃Q** / Control+Q, configurable in Settings).
+### Requirements
+
+- macOS 13 (Ventura) or later
+- Xcode 15+ (or the Swift 5.9+ toolchain) to build from source
 
 ### Run tests
 
@@ -71,36 +89,51 @@ cd app
 swift test
 ```
 
-## Project structure
+<br>
+
+## Architecture
 
 ```
 app/
-├── Sources/
-│   ├── TaskNxt/          # SwiftUI views, menu bar shell (AppDelegate/NSStatusItem/NSPopover)
-│   └── TaskNxtCore/      # Models, persistence, and app state (no SwiftUI dependency)
-├── Tests/TaskNxtTests/   # Unit tests for TaskNxtCore
-└── Package.swift
-openspec/                 # Spec-driven change proposals and archived capability specs
+├─ Sources/
+│  ├─ TaskNxt/                  SwiftUI views, menu bar shell (AppDelegate/NSStatusItem/NSPopover)
+│  └─ TaskNxtCore/              Models, persistence, and app state (no SwiftUI dependency)
+├─ Tests/TaskNxtTests/          Unit tests for TaskNxtCore
+└─ Package.swift
+
+openspec/                       Spec-driven change proposals and archived capability specs
 ```
 
 `TaskNxtCore` has no SwiftUI dependency, so it builds and tests cleanly with any
 Swift toolchain — useful in CI or sandboxes without a full, license-accepted Xcode
 install.
 
+<br>
+
 ## How it works
 
-- **Lanes**: Every tab has exactly three lanes — Now, Nxt, Ltr — in that fixed order.
+- **Lanes** — Every tab has exactly three lanes — Now, Nxt, Ltr — in that fixed order.
   Add a task inline with "+ add to now...", toggle it done, or drag it between lanes.
-- **Tabs**: Organize lanes into up to 4 named tabs (e.g. "Work", "Personal"). Add,
+- **Tabs** — Organize lanes into up to 4 named tabs (e.g. "Work", "Personal"). Add,
   rename, reorder, or delete tabs from Settings.
-- **Retention**: Completed tasks show a countdown badge and are automatically purged
+- **Retention** — Completed tasks show a countdown badge and are automatically purged
   after the configured retention period (default 2 days).
-- **Privacy**: All tabs, tasks, and settings are stored only in local on-device
+- **Privacy** — All tabs, tasks, and settings are stored only in local on-device
   storage — there's no account, no cloud sync, and no telemetry.
 
 See `openspec/specs/` for the full behavioral specification of each capability
 (`task-management`, `tab-management`, `menu-bar-shell`, `settings`, `local-persistence`).
 
+<br>
+
 ## License
 
 No license file is currently included in this repository.
+
+<br>
+
+---
+
+<p align="center">
+  <sub>No accounts. No cloud. No tracking. Just a fast local task list, one keystroke away.</sub>
+</p>
