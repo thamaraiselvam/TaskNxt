@@ -12,6 +12,7 @@
 <p align="center">
   <a href="https://github.com/thamaraiselvam/tasknxt/actions/workflows/build-and-release.yml"><img src="https://img.shields.io/github/actions/workflow/status/thamaraiselvam/tasknxt/build-and-release.yml?branch=main&style=flat-square&label=build" alt="Build status"></a>
   <a href="https://github.com/thamaraiselvam/tasknxt/releases/latest"><img src="https://img.shields.io/github/v/release/thamaraiselvam/tasknxt?style=flat-square&label=release&include_prereleases" alt="Latest release"></a>
+  <a href="https://github.com/thamaraiselvam/tasknxt/releases/latest"><img src="https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fapi.github.com%2Frepos%2Fthamaraiselvam%2Ftasknxt%2Freleases%2Flatest&query=%24round%28assets%5B0%5D.size%2F1048576%2C1%29%20%26%20%22%20MB%22&label=size&style=flat-square" alt="Latest release size"></a>
   <a href="LICENSE"><img src="https://img.shields.io/github/license/thamaraiselvam/tasknxt?style=flat-square" alt="License"></a>
   <img src="https://img.shields.io/badge/macOS%2013+-111?style=flat-square&logo=apple&logoColor=fff" alt="macOS 13+">
   <img src="https://img.shields.io/badge/Swift%205.9-111?style=flat-square&logo=swift&logoColor=F05138" alt="Swift 5.9">
