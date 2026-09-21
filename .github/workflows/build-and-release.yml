@@ -130,9 +130,43 @@ jobs:
       - name: Publish GitHub Release
         if: startsWith(github.ref, 'refs/tags/v')
         run: |
-          gh release create "${GITHUB_REF#refs/tags/}" \
-            "${DMG_PATH}#${APP_NAME} universal installer (Apple Silicon + Intel)" \
-            --title "${APP_NAME} ${{ steps.version.outputs.version }}" \
-            --generate-notes
+          set -euo pipefail
+          TAG="${GITHUB_REF#refs/tags/}"
+          VERSION="${{ steps.version.outputs.version }}"
+          NOTES_FILE="$(mktemp)"
+
+          # Prefer the matching CHANGELOG.md section (curated by release-please)
+          # over --generate-notes, which lists raw merged PRs and surfaces noisy
+          # internal ones (e.g. the release-please version-bump PR itself).
+          python3 - "$VERSION" "../CHANGELOG.md" > "$NOTES_FILE" <<'PY'
+          import re, sys
+          version, path = sys.argv[1], sys.argv[2]
+          try:
+              text = open(path).read()
+          except FileNotFoundError:
+              sys.exit(0)
+          m = re.search(r'^##\s+\[?' + re.escape(version) + r'\]?\b.*$', text, re.MULTILINE)
+          if not m:
+              sys.exit(0)
+          start = m.end()
+          nxt = re.search(r'^##\s+', text[start:], re.MULTILINE)
+          end = start + nxt.start() if nxt else len(text)
+          print(text[start:end].strip())
+          PY
+
+          # Idempotent: replace any existing release under this tag (keeps the tag itself).
+          gh release delete "$TAG" --yes 2>/dev/null || true
+
+          if [ -s "$NOTES_FILE" ]; then
+            gh release create "$TAG" \
+              "${DMG_PATH}#${APP_NAME} universal installer (Apple Silicon + Intel)" \
+              --title "${APP_NAME} ${VERSION}" \
+              --notes-file "$NOTES_FILE"
+          else
+            gh release create "$TAG" \
+              "${DMG_PATH}#${APP_NAME} universal installer (Apple Silicon + Intel)" \
+              --title "${APP_NAME} ${VERSION}" \
+              --generate-notes
+          fi
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
