@@ -6,15 +6,15 @@
 
 ## 2. Release automation credentials
 
-- [ ] 2.1 Create a fine-grained GitHub PAT scoped to `contents: write` on only the `homebrew-tasknxt` repo — **manual, pending**: fine-grained PATs can only be created interactively via github.com/settings, not via `gh`/API; requires the repo owner
-- [ ] 2.2 Add it as the `HOMEBREW_TAP_TOKEN` secret in the `tasknxt` repo's Actions settings — **manual, pending**: blocked on 2.1 (needs the token value); this session also confirmed it lacks `secrets` read/write permission on `thamaraiselvam/tasknxt` (`gh secret list` → 403)
+- [x] 2.1 Create a fine-grained GitHub PAT scoped to `contents: write` on only the `homebrew-tasknxt` repo — done by the repo owner via github.com/settings/personal-access-tokens
+- [x] 2.2 Add it as the `HOMEBREW_TAP_TOKEN` secret in the `tasknxt` repo's Actions settings — confirmed present via `gh secret list --repo thamaraiselvam/tasknxt`
 
 ## 3. Workflow automation
 
 - [x] 3.1 Add a new `homebrew` job to `build-and-release.yml`, gated on `startsWith(github.ref, 'refs/tags/v')`, `needs: build`, running on `macos-15`
-- [x] 3.2 In that job, run `brew bump-cask-pr --write-only --no-audit --no-browse --version="$VERSION" --url="$DMG_URL" thamaraiselvam/tasknxt/tasknxt` against a local checkout of the tap repo (checked out via `actions/checkout` with `HOMEBREW_TAP_TOKEN`, tapped from that local path)
-- [x] 3.3 Commit and push the updated `Casks/tasknxt.rb` straight to the tap's default branch using `HOMEBREW_TAP_TOKEN` (no-op commit if nothing changed)
-- [ ] 3.4 Verify by pushing a test tag: confirm the tap repo's Cask file is auto-updated with the new version/sha256/url and that `brew update && brew upgrade tasknxt` picks it up — blocked on 2.1/2.2 (needs `HOMEBREW_TAP_TOKEN` to exist); workflow validated with `actionlint` (0 issues) but not run end-to-end yet since the secret isn't set
+- [x] 3.2 In that job, run `brew bump-cask-pr --write-only --no-audit --no-browse --version="$VERSION" --url="$DMG_URL" thamaraiselvam/tasknxt/tasknxt` — **fixed after local testing**: `brew bump-cask-pr` always edits Homebrew's own managed tap clone (`$(brew --repository <tap>)`), never an arbitrary `actions/checkout`'d path, so the job now taps directly from GitHub with the token embedded in the remote URL and resolves `TAP_DIR` from `brew --repository` instead of checking out the tap separately
+- [x] 3.3 Commit and push the updated `Casks/tasknxt.rb` straight to the tap's default branch using `HOMEBREW_TAP_TOKEN`, from that same Homebrew-managed clone
+- [x] 3.4 Verified by pushing a real test tag (`v1.0.1`): the `homebrew` job ran successfully end-to-end — `homebrew-tasknxt/Casks/tasknxt.rb` was auto-updated to version `1.0.1` with the correct sha256/url, committed as `chore: update tasknxt to 1.0.1`, and `brew info --cask thamaraiselvam/tasknxt/tasknxt` confirms it resolves to `1.0.1`
 
 ## 4. Documentation
 
