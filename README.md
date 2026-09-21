@@ -19,9 +19,40 @@
   <img src="https://img.shields.io/badge/100%25%20Local-111?style=flat-square" alt="100% Local">
 </p>
 
+<p align="center">
+  <a href="#install"><img src="https://img.shields.io/badge/%F0%9F%8D%BA%20Homebrew-brew%20install%20thamaraiselvam%2Ftasknxt%2Ftasknxt-FBB040?style=for-the-badge" alt="Install with Homebrew"></a>
+</p>
+
 ---
 
 > You could juggle a dozen browser tabs, a sticky note app, and a reminders list. Or you could press one hotkey and see Now, Nxt, and Ltr.
+
+## Install
+
+### 🍺 Homebrew (recommended)
+
+```bash
+brew install thamaraiselvam/tasknxt/tasknxt
+open /Applications/TaskNxt.app
+```
+
+`brew upgrade` picks up new releases automatically — the tap is updated by CI
+as soon as a new version is published, so there's never a manual re-download.
+
+> [!NOTE]
+> TaskNxt is ad-hoc signed, not notarized, so on first launch Gatekeeper will
+> block it as from an "unidentified developer." Right-click `TaskNxt.app` in
+> Finder → **Open** → **Open** (or run
+> `xattr -d com.apple.quarantine /Applications/TaskNxt.app`) once to allow it —
+> the same one-time step needed for a manual `.dmg` download.
+
+### Manual download
+
+Grab the latest `.dmg` from [GitHub Releases](https://github.com/thamaraiselvam/tasknxt/releases/latest), open it, and drag `TaskNxt.app` to `Applications`.
+
+Prefer to build it yourself? See [Build from source](#build-from-source) below.
+
+<br>
 
 ## Features
 
@@ -65,25 +96,7 @@
 
 <br>
 
-## Install
-
-### Homebrew
-
-```bash
-brew install thamaraiselvam/tasknxt/tasknxt
-open /Applications/TaskNxt.app
-```
-
-`brew upgrade` picks up new releases automatically — the tap is updated by CI
-as soon as a new version is published, no manual re-download needed.
-
-> TaskNxt is ad-hoc signed, not notarized, so on first launch Gatekeeper will
-> block it as from an "unidentified developer." Right-click `TaskNxt.app` in
-> Finder → **Open** → **Open** (or run
-> `xattr -d com.apple.quarantine /Applications/TaskNxt.app`) once to allow it —
-> the same one-time step needed for the manual `.dmg` download below.
-
-### Build from source
+## Build from source
 
 ```bash
 git clone git@github.com:thamaraiselvam/tasknxt.git
