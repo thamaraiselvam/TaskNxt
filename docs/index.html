@@ -137,9 +137,14 @@
   .demo{
     max-width:900px;margin:0 auto;text-align:center;
   }
+  .demo-frame{
+    padding:14px;border-radius:24px;
+    background:linear-gradient(180deg,#1c1c1f,#0c0c0d);
+    border:1px solid #2b2b2f;
+    box-shadow:0 30px 80px -24px rgba(0,0,0,.75), inset 0 1px 0 rgba(255,255,255,.04);
+  }
   .demo img{
-    width:100%;border-radius:16px;border:1px solid var(--border);
-    box-shadow:0 30px 80px -30px rgba(0,0,0,.6);
+    display:block;width:100%;border-radius:14px;border:1px solid var(--border);
   }
 
   .privacy-band{
@@ -156,6 +161,32 @@
   .install{
     text-align:center;
   }
+  .download-pill{
+    display:inline-flex;align-items:center;gap:10px;
+    padding:18px 38px;border-radius:16px;
+    background:var(--accent-2);color:#06231f;
+    font-size:19px;font-weight:700;text-decoration:none;
+    box-shadow:0 0 0 1px rgba(125,218,208,.4), 0 20px 50px -12px rgba(125,218,208,.55);
+    transition:transform .15s ease, box-shadow .15s ease;
+  }
+  .download-pill:hover{
+    transform:translateY(-2px);
+    box-shadow:0 0 0 1px rgba(125,218,208,.55), 0 24px 60px -12px rgba(125,218,208,.7);
+  }
+  .stat-pills{
+    display:flex;gap:10px;justify-content:center;flex-wrap:wrap;
+    margin:22px 0 0;
+  }
+  .stat-pill{
+    display:inline-flex;align-items:center;gap:6px;
+    background:var(--card);border:1px solid var(--border);border-radius:10px;
+    padding:9px 16px;font-size:14px;color:var(--text-dim);
+  }
+  .privacy-line{
+    display:flex;align-items:center;justify-content:center;gap:8px;
+    color:var(--text-dim);font-size:14px;margin:22px 0 0;
+  }
+  .privacy-line svg{color:var(--accent-2);flex-shrink:0;}
   .install .code{
     display:inline-block;margin:20px auto 0;text-align:left;
     background:#0e0e10;border:1px solid var(--border);border-radius:12px;
@@ -235,11 +266,24 @@
       <p>macOS 13 (Ventura) or later.</p>
     </div>
     <div class="install">
-      <div class="hero-ctas">
-        <a class="btn btn-primary" href="https://github.com/thamaraiselvam/tasknxt/releases/latest">Download the .dmg</a>
+      <a class="download-pill" href="https://github.com/thamaraiselvam/tasknxt/releases/latest">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 20h14"/></svg>
+        Download Free
+      </a>
+
+      <div class="stat-pills">
+        <span class="stat-pill">🍎 macOS 13+</span>
+        <span class="stat-pill">1.5 MB</span>
+        <span class="stat-pill">🐙 Open Source</span>
+        <span class="stat-pill">Free</span>
       </div>
+
+      <p class="privacy-line">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/></svg>
+        No data leaves your Mac. No analytics. No accounts.
+      </p>
+
       <div class="code">
-<span class="c"># or install with Homebrew</span><br>
 <span class="s">brew</span> install thamaraiselvam/tasknxt/tasknxt
       </div>
     </div>
@@ -251,7 +295,9 @@
       <p>Click the checklist icon — or hit your hotkey — and the popover appears.</p>
     </div>
     <div class="demo">
-      <img src="screenshots/demo.gif" alt="TaskNxt workflow demo: menu bar popover, lanes, and tabs">
+      <div class="demo-frame">
+        <img src="screenshots/demo.gif" alt="TaskNxt workflow demo: menu bar popover, lanes, and tabs">
+      </div>
     </div>
   </section>
 
