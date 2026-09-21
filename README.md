@@ -151,7 +151,7 @@ settings) are tracked as change proposals under `openspec/changes/`.
 
 ## License
 
-No license file is currently included in this repository.
+MIT — see [LICENSE](LICENSE).
 
 <br>
 
