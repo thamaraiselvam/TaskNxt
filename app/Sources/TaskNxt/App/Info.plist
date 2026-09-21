@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleName</key>
+	<string>TaskNxt</string>
+	<key>CFBundleDisplayName</key>
+	<string>TaskNxt</string>
+	<key>CFBundleIdentifier</key>
+	<string>com.tasknxt.app</string>
+	<key>CFBundleVersion</key>
+	<string>1.0.0</string>
+	<key>CFBundleShortVersionString</key>
+	<string>1.0.0</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleExecutable</key>
+	<string>TaskNxt</string>
+	<key>CFBundleIconFile</key>
+	<string>AppIcon</string>
+	<!-- Menu-bar-only app: no Dock icon, no app switcher entry -->
+	<key>LSUIElement</key>
+	<true/>
+	<key>LSMinimumSystemVersion</key>
+	<string>13.0</string>
+	<key>NSHumanReadableCopyright</key>
+	<string>Free and open, no rights reserved to any third party.</string>
+	<!-- 100% local app: no network usage description needed since we never make network calls -->
+	<key>NSSupportsAutomaticTermination</key>
+	<false/>
+	<key>NSSupportsSuddenTermination</key>
+	<false/>
+	<!-- Custom UTI for in-app task drag-and-drop payloads only -->
+	<key>UTExportedTypeDeclarations</key>
+	<array>
+		<dict>
+			<key>UTTypeIdentifier</key>
+			<string>com.tasknxt.task</string>
+			<key>UTTypeDescription</key>
+			<string>TaskNxt Task</string>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.data</string>
+			</array>
+		</dict>
+	</array>
+</dict>
+</plist>
