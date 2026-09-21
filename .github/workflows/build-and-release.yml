@@ -28,7 +28,10 @@ env:
 jobs:
   build:
     name: Build, test, and package
-    runs-on: macos-14
+    # macos-14's default Xcode (15.4) doesn't ship the Swift `Testing`
+    # module used by the test target; macos-15 defaults to Xcode 16.4,
+    # which does.
+    runs-on: macos-15
     defaults:
       run:
         working-directory: app
