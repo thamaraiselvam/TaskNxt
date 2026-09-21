@@ -61,13 +61,11 @@
     text-align:center;
     padding:96px 24px 56px;
   }
-  .hero .eyebrow{
-    display:inline-flex;align-items:center;gap:8px;
-    font-size:13px;color:var(--text-dim);
-    border:1px solid var(--border);border-radius:999px;
-    padding:6px 14px;margin-bottom:28px;
+  .hero-icon{
+    width:96px;height:96px;border-radius:22px;
+    display:block;margin:0 auto 32px;
+    box-shadow:0 20px 50px -14px rgba(125,218,208,.35);
   }
-  .hero .eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--accent-2);}
   .hero h1{
     font-size:clamp(34px,6vw,60px);
     line-height:1.05;
@@ -84,38 +82,6 @@
     color:var(--text-dim);
     font-size:18px;
   }
-  .hero-ctas{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-bottom:56px;}
-  .btn{
-    display:inline-flex;align-items:center;gap:8px;
-    padding:12px 22px;border-radius:10px;
-    font-size:15px;font-weight:600;text-decoration:none;
-    border:1px solid transparent;transition:transform .12s ease, opacity .12s ease;
-  }
-  .btn:hover{transform:translateY(-1px);}
-  .btn-primary{background:var(--text);color:var(--bg);}
-  .btn-secondary{background:var(--card);color:var(--text);border-color:var(--border);}
-  .hero-hint{font-size:13px;color:var(--text-dim);margin-top:-40px;margin-bottom:56px;}
-
-  .lanes-preview{
-    max-width:720px;margin:0 auto;
-    border:1px solid var(--border);
-    border-radius:16px;
-    background:var(--bg-alt);
-    padding:22px;
-    box-shadow:0 30px 80px -30px rgba(0,0,0,.6);
-  }
-  .lanes-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
-  .lane{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;text-align:left;}
-  .lane h4{margin:0 0 10px;font-size:12px;text-transform:uppercase;letter-spacing:.08em;display:flex;align-items:center;gap:6px;}
-  .lane h4 .sw{width:8px;height:8px;border-radius:50%;}
-  .now-sw{background:var(--now);} .nxt-sw{background:var(--nxt);} .ltr-sw{background:var(--ltr);}
-  .task{
-    font-size:13px;color:var(--text-dim);
-    background:var(--bg-alt);border:1px solid var(--border);
-    border-radius:8px;padding:8px 10px;margin-bottom:8px;
-  }
-  .task:last-child{margin-bottom:0;}
-  .task.done{color:#5a5a60;text-decoration:line-through;}
 
   section{padding:64px 24px;}
   .section-head{text-align:center;max-width:600px;margin:0 auto 48px;}
@@ -181,20 +147,22 @@
     display:inline-flex;align-items:center;gap:6px;
     background:var(--card);border:1px solid var(--border);border-radius:10px;
     padding:9px 16px;font-size:14px;color:var(--text-dim);
+    text-decoration:none;transition:border-color .15s,color .15s;
   }
+  a.stat-pill:hover{border-color:var(--accent-2);color:var(--text);}
   .privacy-line{
     display:flex;align-items:center;justify-content:center;gap:8px;
     color:var(--text-dim);font-size:14px;margin:22px 0 0;
   }
   .privacy-line svg{color:var(--accent-2);flex-shrink:0;}
-  .install .code{
+  .code{
     display:inline-block;margin:20px auto 0;text-align:left;
     background:#0e0e10;border:1px solid var(--border);border-radius:12px;
     padding:16px 20px;font:13px/1.6 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
     color:#c9c9cf;
   }
-  .install .code .c{color:#5a5a60;}
-  .install .code .s{color:var(--accent-2);}
+  .code .c{color:#5a5a60;}
+  .code .s{color:var(--accent-2);}
 
   footer{
     border-top:1px solid var(--border);
@@ -210,7 +178,6 @@
     .features{grid-template-columns:1fr;}
     .privacy-inner{grid-template-columns:1fr 1fr;}
     .nav-links{display:none;}
-    .lanes-grid{grid-template-columns:1fr;}
   }
 </style>
 </head>
@@ -230,62 +197,32 @@
 </header>
 
 <main id="top">
-  <section class="hero">
-    <div class="eyebrow"><span class="dot"></span> Free &amp; 100% local for macOS 13+</div>
+  <section class="hero" id="install">
+    <img class="hero-icon" src="icon.png" alt="TaskNxt icon">
     <h1>Three lanes. <span>One popover.</span><br>Zero accounts.</h1>
     <p class="sub">Now, Nxt, and Ltr — organize what matters today, what's coming next, and what can wait. One hotkey away, living quietly in your menu bar.</p>
-    <div class="hero-ctas">
-      <a class="btn btn-primary" href="https://github.com/thamaraiselvam/tasknxt/releases/latest">Download for macOS</a>
-      <a class="btn btn-secondary" href="https://github.com/thamaraiselvam/tasknxt">View on GitHub</a>
-    </div>
 
-    <div class="lanes-preview">
-      <div class="lanes-grid">
-        <div class="lane">
-          <h4><span class="sw now-sw"></span>Now</h4>
-          <div class="task">Ship the release notes</div>
-          <div class="task">Reply to design review</div>
-        </div>
-        <div class="lane">
-          <h4><span class="sw nxt-sw"></span>Nxt</h4>
-          <div class="task">Sketch onboarding flow</div>
-          <div class="task done">Renew domain</div>
-        </div>
-        <div class="lane">
-          <h4><span class="sw ltr-sw"></span>Ltr</h4>
-          <div class="task">Read that RFC</div>
-          <div class="task">Plan Q3 roadmap</div>
-        </div>
-      </div>
-    </div>
-  </section>
+    <a class="download-pill" href="https://github.com/thamaraiselvam/tasknxt/releases/latest">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 20h14"/></svg>
+      Download Free
+    </a>
 
-  <section id="install">
-    <div class="section-head">
-      <h2>Install TaskNxt</h2>
-      <p>macOS 13 (Ventura) or later.</p>
-    </div>
-    <div class="install">
-      <a class="download-pill" href="https://github.com/thamaraiselvam/tasknxt/releases/latest">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 20h14"/></svg>
-        Download Free
+    <div class="stat-pills">
+      <span class="stat-pill">🍎 Mac</span>
+      <span class="stat-pill">1.5 MB</span>
+      <a class="stat-pill" href="https://github.com/thamaraiselvam/tasknxt" target="_blank" rel="noopener">
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        Open Source
       </a>
+    </div>
 
-      <div class="stat-pills">
-        <span class="stat-pill">🍎 macOS 13+</span>
-        <span class="stat-pill">1.5 MB</span>
-        <span class="stat-pill">🐙 Open Source</span>
-        <span class="stat-pill">Free</span>
-      </div>
+    <p class="privacy-line">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/></svg>
+      No data leaves your Mac. No analytics. No accounts.
+    </p>
 
-      <p class="privacy-line">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/></svg>
-        No data leaves your Mac. No analytics. No accounts.
-      </p>
-
-      <div class="code">
+    <div class="code">
 <span class="s">brew</span> install thamaraiselvam/tasknxt/tasknxt
-      </div>
     </div>
   </section>
 
@@ -296,7 +233,7 @@
     </div>
     <div class="demo">
       <div class="demo-frame">
-        <img src="screenshots/demo.gif" alt="TaskNxt workflow demo: menu bar popover, lanes, and tabs">
+        <img src="screenshots/popover.png" alt="TaskNxt menu bar popover showing Now, Nxt, and Ltr lanes">
       </div>
     </div>
   </section>
