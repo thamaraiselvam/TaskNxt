@@ -73,12 +73,12 @@ struct LocalStoreTests {
           "schemaVersion": 1,
           "tabs": [
             {
-              "id": "\\(tabID.uuidString)",
+              "id": "\(tabID.uuidString)",
               "name": "Work",
               "order": 0,
               "tasks": {
                 "now": [
-                  { "id": "\\(taskID.uuidString)", "text": "Legacy task", "order": 0 }
+                  { "id": "\(taskID.uuidString)", "text": "Legacy task", "order": 0 }
                 ],
                 "nxt": [],
                 "ltr": []
@@ -89,7 +89,7 @@ struct LocalStoreTests {
             "hotKey": { "keyCode": 12, "modifierFlags": 4096 },
             "launchAtLogin": false,
             "retentionDays": 2,
-            "lastActiveTabID": "\\(tabID.uuidString)"
+            "lastActiveTabID": "\(tabID.uuidString)"
           }
         }
         """
