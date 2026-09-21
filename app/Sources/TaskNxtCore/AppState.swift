@@ -266,7 +266,13 @@ public final class AppState: ObservableObject {
     private func startSweepTimer() {
         sweepTimer?.invalidate()
         sweepTimer = Timer.scheduledTimer(withTimeInterval: 60, repeats: true) { [weak self] _ in
-            Task { @MainActor in self?.sweepExpiredTasks() }
+            // `Timer`'s fire closure is `@Sendable`, so capturing the
+            // `weak self` var directly inside the nested `Task` would
+            // reference a mutable variable from concurrently-executing
+            // code. Binding it to a local `let` first captures a fixed,
+            // safe-to-send reference instead.
+            guard let self else { return }
+            Task { @MainActor in self.sweepExpiredTasks() }
         }
     }
 
