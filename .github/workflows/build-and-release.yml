@@ -191,11 +191,24 @@ jobs:
 
           ditto -c -k --keepParent "$APP_BUNDLE" "$ZIP_PATH"
 
-          xcrun notarytool submit "$ZIP_PATH" \
-            --apple-id "$APPLE_ID" \
-            --password "$APPLE_APP_SPECIFIC_PASSWORD" \
-            --team-id "$APPLE_TEAM_ID" \
-            --wait
+          # notarytool doesn't retry on its own if a transient network blip
+          # drops the long-poll while Apple is still processing the
+          # submission, so retry the whole submit+wait a few times.
+          for attempt in 1 2 3; do
+            if xcrun notarytool submit "$ZIP_PATH" \
+              --apple-id "$APPLE_ID" \
+              --password "$APPLE_APP_SPECIFIC_PASSWORD" \
+              --team-id "$APPLE_TEAM_ID" \
+              --wait; then
+              break
+            fi
+            if [ "$attempt" = 3 ]; then
+              echo "::error::notarytool submit failed after 3 attempts."
+              exit 1
+            fi
+            echo "::warning::notarytool attempt $attempt failed (likely a transient network error); retrying..."
+            sleep 30
+          done
 
           xcrun stapler staple "$APP_BUNDLE"
           xcrun stapler validate "$APP_BUNDLE"
