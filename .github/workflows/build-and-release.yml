@@ -142,9 +142,10 @@ jobs:
           security list-keychains -d user -s "$KEYCHAIN_PATH" $(security list-keychains -d user | sed 's/"//g')
 
           echo "==> Identities found in imported certificate:"
-          security find-identity -v -p codesigning "$KEYCHAIN_PATH" || true
+          IDENTITY_LIST="$(security find-identity -v -p codesigning "$KEYCHAIN_PATH" || true)"
+          echo "$IDENTITY_LIST"
 
-          SIGNING_IDENTITY="$(security find-identity -v -p codesigning "$KEYCHAIN_PATH" | grep -o '"Developer ID Application:.*"' | head -1 | tr -d '"')"
+          SIGNING_IDENTITY="$(echo "$IDENTITY_LIST" | grep -o '"Developer ID Application:.*"' | head -1 | tr -d '"' || true)"
           if [ -z "$SIGNING_IDENTITY" ]; then
             echo "::error::No 'Developer ID Application' identity found in the imported .p12."
             echo "::error::This means the .p12 contains a certificate WITHOUT its private key."
