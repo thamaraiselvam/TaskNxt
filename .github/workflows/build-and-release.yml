@@ -119,22 +119,43 @@ jobs:
 
           echo -n "$APPLE_CERTIFICATE_P12_BASE64" | base64 --decode -o "$CERT_PATH"
 
+          CERT_SIZE="$(stat -f%z "$CERT_PATH" 2>/dev/null || stat -c%s "$CERT_PATH")"
+          echo "Decoded certificate size: ${CERT_SIZE} bytes"
+          if [ "$CERT_SIZE" -lt 100 ]; then
+            echo "::error::Decoded .p12 is suspiciously small (${CERT_SIZE} bytes) — APPLE_CERTIFICATE_P12_BASE64 secret looks truncated or corrupted."
+            exit 1
+          fi
+
           security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
           security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
           security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
-          security import "$CERT_PATH" -P "$APPLE_CERTIFICATE_PASSWORD" -A \
-            -t cert -f pkcs12 -k "$KEYCHAIN_PATH"
-          security set-key-partition-list -S apple-tool:,apple: -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
 
-          # Make this keychain visible to codesign without clobbering the
-          # runner's default keychain search list.
+          if ! security import "$CERT_PATH" -P "$APPLE_CERTIFICATE_PASSWORD" -A \
+            -t cert -f pkcs12 -k "$KEYCHAIN_PATH" 2>import_err.log; then
+            echo "::error::security import failed. This usually means APPLE_CERTIFICATE_PASSWORD is wrong, or the .p12 is corrupted."
+            cat import_err.log
+            exit 1
+          fi
+
+          # Make this keychain visible to codesign/find-identity without
+          # clobbering the runner's default keychain search list.
           security list-keychains -d user -s "$KEYCHAIN_PATH" $(security list-keychains -d user | sed 's/"//g')
+
+          echo "==> Identities found in imported certificate:"
+          security find-identity -v -p codesigning "$KEYCHAIN_PATH" || true
 
           SIGNING_IDENTITY="$(security find-identity -v -p codesigning "$KEYCHAIN_PATH" | grep -o '"Developer ID Application:.*"' | head -1 | tr -d '"')"
           if [ -z "$SIGNING_IDENTITY" ]; then
-            echo "::error::No 'Developer ID Application' identity found in the imported certificate."
+            echo "::error::No 'Developer ID Application' identity found in the imported .p12."
+            echo "::error::This means the .p12 contains a certificate WITHOUT its private key."
+            echo "::error::Fix: in Keychain Access, export the identity from 'My Certificates'"
+            echo "::error::(the row with a disclosure triangle showing the private key nested"
+            echo "::error::underneath 'Developer ID Application: ...'), not a bare Certificate."
             exit 1
           fi
+
+          # Only reachable if the private key + cert pair imported correctly.
+          security set-key-partition-list -S apple-tool:,apple: -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
 
           echo "signed=true" >> "$GITHUB_OUTPUT"
           echo "identity=$SIGNING_IDENTITY" >> "$GITHUB_OUTPUT"
