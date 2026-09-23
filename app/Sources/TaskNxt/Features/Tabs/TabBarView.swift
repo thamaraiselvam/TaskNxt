@@ -85,6 +85,9 @@ struct TabBarView: View {
                     : Color.clear,
                 in: RoundedRectangle(cornerRadius: 6)
             )
+            // Inactive tabs have a clear background, which `.plain`
+            // buttons don't hit-test; make the whole chip clickable.
+            .contentShape(RoundedRectangle(cornerRadius: 6))
         }
         .buttonStyle(.plain)
     }

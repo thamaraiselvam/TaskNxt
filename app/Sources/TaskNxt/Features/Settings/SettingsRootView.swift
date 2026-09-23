@@ -93,6 +93,10 @@ private struct SettingsTabButton: View {
                 RoundedRectangle(cornerRadius: 8)
                     .strokeBorder(isSelected ? Color.accentColor.opacity(0.4) : .clear, lineWidth: 1)
             )
+            // A `.plain` button only hit-tests its drawn pixels, and the
+            // unselected background is clear -- so only the icon/label
+            // glyphs were clickable. Make the whole box the hit area.
+            .contentShape(RoundedRectangle(cornerRadius: 8))
         }
         .buttonStyle(.plain)
     }
