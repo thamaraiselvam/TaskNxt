@@ -97,30 +97,6 @@ struct AppStateTabTests {
         #expect(state.store.tabs[0].tasks[.now]![0].text == "Updated text")
     }
 
-    @Test func moveTaskAcrossTabsPreservesCompletionState() throws {
-        let state = makeState()
-        let sourceTabID = state.store.tabs[0].id
-        try state.addTab(named: "Destination")
-        let destTabID = state.store.tabs[1].id
-
-        state.addTask(text: "Finish design doc", lane: .now, tabID: sourceTabID)
-        let taskID = state.store.tabs[0].tasks[.now]![0].id
-        state.toggleTask(taskID, lane: .now, tabID: sourceTabID)
-        #expect(state.store.tabs[0].tasks[.now]![0].isDone)
-
-        state.moveTask(
-            taskID,
-            fromLane: .now, fromTabID: sourceTabID,
-            toLane: .ltr, toTabID: destTabID,
-            toIndex: nil
-        )
-
-        let movedTasks = state.store.tabs.first { $0.id == destTabID }!.tasks[.ltr]!
-        #expect(movedTasks.count == 1)
-        #expect(movedTasks[0].isDone)
-        #expect(state.store.tabs.first { $0.id == sourceTabID }!.tasks[.now]?.isEmpty ?? true)
-    }
-
     @Test func sweepHardDeletesWhenArchivingDisabled() {
         let state = makeState()
         let tabID = state.store.tabs[0].id

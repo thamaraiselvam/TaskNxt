@@ -188,41 +188,6 @@ public final class AppState: ObservableObject {
         persist()
     }
 
-    /// Moves a task to a (possibly different) lane and/or tab, preserving
-    /// its completion state, and inserts it at `index` in the destination
-    /// (spec: task-management, "Move task between lanes" / "across tabs").
-    public func moveTask(
-        _ taskID: UUID,
-        fromLane: Lane, fromTabID: UUID,
-        toLane: Lane, toTabID: UUID,
-        toIndex index: Int?
-    ) {
-        guard let fromTabIdx = tabIndex(fromTabID),
-              let taskIdx = store.tabs[fromTabIdx].tasks[fromLane]?.firstIndex(where: { $0.id == taskID })
-        else { return }
-
-        var task = store.tabs[fromTabIdx].tasks[fromLane]![taskIdx]
-        store.tabs[fromTabIdx].tasks[fromLane]!.remove(at: taskIdx)
-
-        guard let toTabIdx = tabIndex(toTabID) else { return }
-        var destination = store.tabs[toTabIdx].tasks[toLane] ?? []
-        let insertAt = min(max(index ?? destination.count, 0), destination.count)
-        task.order = insertAt
-        destination.insert(task, at: insertAt)
-        for i in destination.indices { destination[i].order = i }
-        store.tabs[toTabIdx].tasks[toLane] = destination
-
-        persist()
-    }
-
-    public func reorderTasks(in lane: Lane, tabID: UUID, fromOffsets source: IndexSet, toOffset destination: Int) {
-        guard let tabIdx = tabIndex(tabID), var tasks = store.tabs[tabIdx].tasks[lane] else { return }
-        tasks.move(fromOffsets: source, toOffset: destination)
-        for i in tasks.indices { tasks[i].order = i }
-        store.tabs[tabIdx].tasks[lane] = tasks
-        persist()
-    }
-
     // MARK: - Settings
 
     @discardableResult

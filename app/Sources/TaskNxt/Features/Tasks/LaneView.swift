@@ -69,16 +69,6 @@ struct LaneView: View {
                 // appeared to do nothing.
                 isAddFieldFocused = true
             }
-            .dropDestination(for: DraggedTask.self) { items, _ in
-                guard let dragged = items.first else { return false }
-                appState.moveTask(
-                    dragged.taskID,
-                    fromLane: dragged.fromLane, fromTabID: dragged.fromTabID,
-                    toLane: lane, toTabID: tabID,
-                    toIndex: nil
-                )
-                return true
-            }
         }
     }
 }

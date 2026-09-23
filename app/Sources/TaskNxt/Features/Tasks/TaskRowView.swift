@@ -2,11 +2,10 @@ import SwiftUI
 import TaskNxtCore
 
 /// A single task row: completion checkbox, text (strikethrough when done,
-/// double-click to edit in place), a countdown badge while awaiting
-/// auto-purge, an archive affordance for completed tasks, a delete
-/// affordance, and a drag handle for reordering (spec: task-management,
-/// "Task completion toggle" / "Inline task text editing" / "Manual task
-/// deletion" / "Completed task retention countdown").
+/// double-click to edit in place), an archive affordance for completed
+/// tasks, and a delete affordance (spec: task-management, "Task
+/// completion toggle" / "Inline task text editing" / "Manual task
+/// deletion").
 struct TaskRowView: View {
     @EnvironmentObject private var appState: AppState
     let task: TaskItem
@@ -31,7 +30,6 @@ struct TaskRowView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .contentShape(Rectangle())
             .onHover { isHovering = $0 }
-            .background(dropTargetLayer)
             .contextMenu {
                 // Only completed tasks have a `completedAt`, which
                 // `archiveTask` needs to record on the archived copy --
@@ -47,37 +45,6 @@ struct TaskRowView: View {
                 Button("Delete", role: .destructive) {
                     appState.deleteTask(task.id, lane: lane, tabID: tabID)
                 }
-            }
-    }
-
-    // Only the *drop* side of drag-and-drop lives on this whole-row
-    // background layer -- accepting a drop doesn't compete with taps the
-    // way starting a drag does, so it's safe to leave spanning the full
-    // row. The drag *source* used to live here too (`.draggable()` on
-    // this same background), which was still enough to make row buttons
-    // require multiple clicks before registering: AppKit/SwiftUI's drag
-    // recognizer hooks into the shared ancestor's event dispatch, not
-    // just its own view's hit-test area, so it kept racing against every
-    // button tap in `rowContent` above it. Moving `.draggable()` onto a
-    // small, dedicated `dragHandle` (below) removes that row-wide
-    // competition entirely; only grabbing the handle itself can start a
-    // drag now.
-    private var dropTargetLayer: some View {
-        Color.clear
-            .contentShape(Rectangle())
-            .dropDestination(for: DraggedTask.self) { items, _ in
-                guard let dragged = items.first else { return false }
-                let destinationIndex = appState.store.tabs
-                    .first(where: { $0.id == tabID })?
-                    .tasks[lane]?
-                    .firstIndex(where: { $0.id == task.id })
-                appState.moveTask(
-                    dragged.taskID,
-                    fromLane: dragged.fromLane, fromTabID: dragged.fromTabID,
-                    toLane: lane, toTabID: tabID,
-                    toIndex: destinationIndex
-                )
-                return true
             }
     }
 
@@ -107,19 +74,6 @@ struct TaskRowView: View {
 
             Spacer(minLength: 4)
 
-            if let completedAt = task.completedAt,
-               let label = RetentionPolicy.countdownLabel(
-                   completedAt: completedAt,
-                   retentionDays: appState.store.settings.retentionDays
-               ) {
-                Text(label)
-                    .font(.caption2)
-                    .padding(.horizontal, 5)
-                    .padding(.vertical, 1)
-                    .background(.secondary.opacity(0.15), in: RoundedRectangle(cornerRadius: 4))
-                    .foregroundStyle(.secondary)
-            }
-
             // Archive affordance: only meaningful once a task is done
             // (archiving needs `completedAt`), so it's hidden entirely for
             // still-open tasks rather than shown disabled. Fixed-width
@@ -137,16 +91,6 @@ struct TaskRowView: View {
                 .opacity(isHovering ? 1 : 0)
                 .allowsHitTesting(isHovering)
             }
-
-            // Drag handle: the sole drag *source* for reordering (see
-            // `dropTargetLayer` above for why it's no longer the whole
-            // row). Only visible/hit-testable on hover, like the other
-            // row affordances.
-            Image(systemName: "line.3.horizontal")
-                .foregroundStyle(.secondary)
-                .opacity(isHovering ? 1 : 0)
-                .allowsHitTesting(isHovering)
-                .draggable(DraggedTask(taskID: task.id, fromLane: lane, fromTabID: tabID))
 
             // Always present (fixed-width slot) so toggling its visibility
             // never reflows the row and re-triggers `.onHover` below --
