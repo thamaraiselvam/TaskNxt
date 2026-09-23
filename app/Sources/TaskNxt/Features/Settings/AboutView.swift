@@ -56,14 +56,6 @@ struct AboutView: View {
     }
 
     private var appIcon: some View {
-        Group {
-            if let icon = NSApplication.shared.applicationIconImage {
-                Image(nsImage: icon).resizable()
-            } else {
-                Image(systemName: "checkmark.circle")
-                    .resizable()
-                    .padding(8)
-            }
-        }
+        Image(nsImage: AppInfo.icon).resizable()
     }
 }
