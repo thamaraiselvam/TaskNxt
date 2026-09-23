@@ -73,7 +73,7 @@ Prefer to build it yourself? See [Build from source](#build-from-source) below.
 - 🔢 **Pending-count badge** — the menu bar icon shows the active tab's incomplete task count
 - 📑 **Up to 4 tabs** — separate Work, Personal, or any workspaces you like
 - ✅ **Drag-and-drop** reordering, within and across lanes
-- ✏️ **Inline editing** — double-click a task's text to rename it in place
+- ✏️ **Inline editing** — click a task's text to rename it in place
 - ⏳ **Auto-cleanup** — completed tasks show a countdown and purge automatically (configurable retention)
 - 🗄️ **Optional archive** — keep a browsable, restorable history of completed tasks instead of deleting them
 - ⚙️ **Standalone Settings window** — General, Shortcuts, Tabs, and About sections
@@ -91,7 +91,7 @@ Prefer to build it yourself? See [Build from source](#build-from-source) below.
 | Quick open | Global hotkey (default `⌃Q` / Control+Q) |
 | Add a task | Click "+ add to now..." (or nxt / ltr) in a lane |
 | Reorder / retriage | Drag a task within or across lanes |
-| Rename a task | Double-click its text, edit, press Enter (Esc cancels) |
+| Rename a task | Click its text, edit, press Enter (Esc cancels) |
 | Archive or delete a task | Right-click a task for "Archive Now" / "Delete", or use the hover "x" |
 | View archived tasks | Click the archive icon (📦) in the popover header |
 | Change hotkey, tabs, retention, archive | Click the gear icon → opens the Settings window (General / Shortcuts / Tabs / About) |
@@ -161,7 +161,7 @@ install.
 ## How it works
 
 - **Lanes** — Every tab has exactly three lanes — Now, Nxt, Ltr — in that fixed order.
-  Add a task inline with "+ add to now...", toggle it done, double-click its text to
+  Add a task inline with "+ add to now...", toggle it done, click its text to
   rename it in place, or drag it between lanes.
 - **Tabs** — Organize lanes into up to 4 named tabs (e.g. "Work", "Personal"). Add,
   rename, reorder, or delete tabs from the Settings window's Tabs section. The menu

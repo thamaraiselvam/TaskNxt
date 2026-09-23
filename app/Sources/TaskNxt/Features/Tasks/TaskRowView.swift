@@ -1,8 +1,9 @@
+import AppKit
 import SwiftUI
 import TaskNxtCore
 
 /// A single task row: completion checkbox, text (strikethrough when done,
-/// double-click to edit in place), an archive affordance for completed
+/// click to edit in place), an archive affordance for completed
 /// tasks, and a delete affordance (spec: task-management, "Task
 /// completion toggle" / "Inline task text editing" / "Manual task
 /// deletion").
@@ -14,6 +15,7 @@ struct TaskRowView: View {
 
     @State private var isHovering = false
     @State private var isEditing = false
+    @State private var isHoveringText = false
     @State private var draftText = ""
     @FocusState private var isEditFieldFocused: Bool
 
@@ -64,12 +66,29 @@ struct TaskRowView: View {
                     .focused($isEditFieldFocused)
                     .onSubmit { commitEdit() }
                     .onExitCommand { cancelEdit() }
+                    // Focus can only be granted once the field is in the
+                    // hierarchy; setting it in `beginEdit()` (same update as
+                    // `isEditing = true`) was silently dropped, leaving an
+                    // unfocused field that looked like plain text and
+                    // swallowed typing -- why editing appeared broken.
+                    .onAppear {
+                        DispatchQueue.main.async { isEditFieldFocused = true }
+                    }
+                    // Clicking elsewhere commits, like pressing Enter.
+                    .onChange(of: isEditFieldFocused) { focused in
+                        if !focused && isEditing { commitEdit() }
+                    }
             } else {
                 Text(task.text)
                     .strikethrough(task.isDone)
                     .foregroundStyle(task.isDone ? .secondary : .primary)
                     .lineLimit(2)
-                    .onTapGesture(count: 2) { beginEdit() }
+                    .onHover { inside in
+                        guard inside != isHoveringText else { return }
+                        isHoveringText = inside
+                        if inside { NSCursor.iBeam.push() } else { NSCursor.pop() }
+                    }
+                    .onTapGesture { beginEdit() }
             }
 
             Spacer(minLength: 4)
@@ -108,9 +127,15 @@ struct TaskRowView: View {
     }
 
     private func beginEdit() {
+        // The text view is about to be replaced by the field, so it may
+        // never get its hover-exit; pop its cursor now to keep the cursor
+        // stack balanced.
+        if isHoveringText {
+            isHoveringText = false
+            NSCursor.pop()
+        }
         draftText = task.text
         isEditing = true
-        isEditFieldFocused = true
     }
 
     private func commitEdit() {
