@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.0.3](https://github.com/thamaraiselvam/TaskNxt/compare/v1.0.2...v1.0.3) (2026-09-23)
+
+
+### Bug Fixes
+
+* keep popover anchored when the menu bar badge count changes ([d376c30](https://github.com/thamaraiselvam/TaskNxt/commit/d376c307b024d821c5f0ee696d4ddf6abdc2aceb))
+* make task text editable with a single click ([31b0bc3](https://github.com/thamaraiselvam/TaskNxt/commit/31b0bc3ccb0b3e5671c686b4614940c14838b953))
+* make the whole settings and tab chips clickable ([ef50c31](https://github.com/thamaraiselvam/TaskNxt/commit/ef50c313e6f17138223c11a431714750b3185f05))
+* show the real app version and icon in About ([a0544e5](https://github.com/thamaraiselvam/TaskNxt/commit/a0544e5deb3101bbd5b1953e7a0fd79a0dcf55e3))
+
 ## [1.0.1](https://github.com/thamaraiselvam/tasknxt/compare/v1.0.0...v1.0.1) (2026-09-21)
 
 

@@ -9,9 +9,9 @@
 	<key>CFBundleIdentifier</key>
 	<string>com.tasknxt.app</string>
 	<key>CFBundleVersion</key>
-	<string>1.0.2</string> <!-- x-release-please-version -->
+	<string>1.0.3</string> <!-- x-release-please-version -->
 	<key>CFBundleShortVersionString</key>
-	<string>1.0.2</string> <!-- x-release-please-version -->
+	<string>1.0.3</string> <!-- x-release-please-version -->
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleExecutable</key>
