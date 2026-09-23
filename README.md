@@ -27,6 +27,18 @@
 
 > You could juggle a dozen browser tabs, a sticky note app, and a reminders list. Or you could press one hotkey and see Now, Nxt, and Ltr.
 
+<div align="center">
+  <table>
+    <tr>
+      <td align="center">
+        <img src="docs/screenshots/popover-readme.png" alt="TaskNxt menu bar popover showing Now, Nxt, and Ltr lanes" width="420">
+      </td>
+    </tr>
+  </table>
+</div>
+
+<br>
+
 ## Install
 
 ### 🍺 Homebrew (recommended)
@@ -68,14 +80,6 @@ Prefer to build it yourself? See [Build from source](#build-from-source) below.
 - 🌗 **Light & dark mode** — follows your system appearance live
 - 🔒 **100% local** — all data stays on your Mac; no network calls, no sign-in, no analytics
 - 🚀 **Launch at login** support
-
-<br>
-
-## Demo
-
-<p align="center">
-  <img src="docs/screenshots/demo.gif" alt="TaskNxt workflow demo: menu bar popover, lanes, and tabs" width="640">
-</p>
 
 <br>
 
