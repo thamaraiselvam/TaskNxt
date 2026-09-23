@@ -23,6 +23,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         configureStatusItem(item)
+        fixStatusItemWidth(item)
         statusItem = item
 
         let popover = NSPopover()
@@ -57,16 +58,29 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private func updateBadge() {
         guard let button = statusItem?.button else { return }
         let count = appState.activeTabIncompleteCount
-        button.title = count > 0 ? " \(count)" : ""
+        button.attributedTitle = badgeTitle(count == 0 ? "" : count > 99 ? " 99+" : " \(count)")
         // Keep `imagePosition` fixed at `.imageLeading` at all times (rather
         // than switching to `.imageOnly` when the count is 0) so the icon's
         // own position never shifts as the badge text appears/disappears --
-        // only the title text next to it changes. Combined with the
-        // `.variableLength` status item (which can actually grow to fit
-        // the title -- `.squareLength` clipped it to a fixed square and is
-        // why the badge number never rendered), this keeps the icon
-        // visually anchored while the count updates.
+        // only the title text next to it changes.
         button.imagePosition = .imageLeading
+    }
+
+    /// Badge text in a monospaced-digit menu bar font, so every count of the
+    /// same length renders at the same width.
+    private func badgeTitle(_ text: String) -> NSAttributedString {
+        let font = NSFont.monospacedDigitSystemFont(ofSize: NSFont.systemFontSize, weight: .regular)
+        return NSAttributedString(string: text, attributes: [.font: font])
+    }
+
+    /// Pins the status item to the width of its widest badge (" 99+").
+    /// With `.variableLength` the item resized whenever the count changed
+    /// (e.g. on completing a task), which moved the popover anchored to it.
+    private func fixStatusItemWidth(_ item: NSStatusItem) {
+        guard let button = item.button else { return }
+        button.imagePosition = .imageLeading
+        button.attributedTitle = badgeTitle(" 99+")
+        item.length = ceil(button.fittingSize.width)
     }
 
     private func configureStatusItem(_ item: NSStatusItem) {
