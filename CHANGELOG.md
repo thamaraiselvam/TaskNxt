@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.0.5](https://github.com/thamaraiselvam/TaskNxt/compare/v1.0.4...v1.0.5) (2026-10-11)
+
+
+### Bug Fixes
+
+* focus and commit the tab rename field in settings ([0d0d757](https://github.com/thamaraiselvam/TaskNxt/commit/0d0d757e595ac49e2cc854cf124f25b0e0e5f8bf))
+* focus and commit the tab rename field in settings ([bdfac06](https://github.com/thamaraiselvam/TaskNxt/commit/bdfac065390a3a184e8c2f6c2a17f6110e26f4a2))
+
 ## [1.0.4](https://github.com/thamaraiselvam/TaskNxt/compare/v1.0.2...v1.0.4) (2026-09-23)
 
 Re-release of the 1.0.3 changes (the v1.0.3 tag could not be published).
