@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TaskNxt — Three lanes. One popover. Zero accounts.</title>
-<meta name="description" content="TaskNxt is a free, 100% local macOS menu bar app for triaging tasks into Now, Nxt, and Ltr. No accounts, no cloud, no tracking.">
+<title>TaskNxt — Three lanes. One popover.</title>
+<meta name="description" content="TaskNxt is a free, local-first macOS menu bar app for triaging tasks into Now, Nxt, and Ltr. Works fully offline, with optional Google Tasks sync. No tracking.">
 <link rel="icon" type="image/png" href="icon.png">
-<meta property="og:title" content="TaskNxt — Three lanes. One popover. Zero accounts.">
-<meta property="og:description" content="A free, 100% local macOS menu bar task manager. Now, Nxt, Ltr — one hotkey away.">
+<meta property="og:title" content="TaskNxt — Three lanes. One popover.">
+<meta property="og:description" content="A free, local-first macOS menu bar task manager with optional Google Tasks sync. Now, Nxt, Ltr — one hotkey away.">
 <meta property="og:image" content="icon.png">
 <meta property="og:type" content="website">
 <style>
@@ -149,7 +149,6 @@
     padding:9px 16px;font-size:14px;color:var(--text-dim);
     text-decoration:none;transition:border-color .15s,color .15s;
   }
-  .stat-pill img{height:20px;width:auto;display:block;}
   a.stat-pill:hover{border-color:var(--accent-2);color:var(--text);}
   .privacy-line{
     display:flex;align-items:center;justify-content:center;gap:8px;
@@ -200,7 +199,7 @@
 <main id="top">
   <section class="hero" id="install">
     <img class="hero-icon" src="icon.png" alt="TaskNxt icon">
-    <h1>Three lanes. <span>One popover.</span><br>Zero accounts.</h1>
+    <h1>Three lanes. <span>One popover.</span></h1>
     <p class="sub">Now, Next, and Later - organize what matters today, what's coming next, and what can wait. One hotkey away, living quietly in your menu bar.</p>
 
     <a class="download-pill" href="https://github.com/thamaraiselvam/tasknxt/releases/latest">
@@ -218,12 +217,11 @@
         <svg width="15" height="15" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
         Open Source
       </a>
-      <img class="stat-pill" src="https://visitor-badge.laobi.icu/badge?page_id=thamaraiselvam.tasknxt&logo=github&left_color=%2151517&right_color=grey" alt="Page visits">
     </div>
 
     <p class="privacy-line">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/></svg>
-      No data leaves your Mac. No analytics. No accounts.
+      Your data stays on your Mac unless you connect Google Tasks. No analytics.
     </p>
 
     <div class="code">
@@ -260,9 +258,9 @@
         <p>Now / Nxt / Ltr — always in the same order, so priority triage becomes muscle memory instead of a decision.</p>
       </div>
       <div class="feature">
-        <span class="icon">📑</span>
-        <h3>Up to 4 tabs</h3>
-        <p>Separate Work, Personal, or any workspace you like. The menu bar badge shows the active tab's incomplete-task count.</p>
+        <span class="icon">🔄</span>
+        <h3>Google Tasks, optionally</h3>
+        <p>Connect your Google account and every task list becomes its own tab, synced both ways, with no cap on how many. New tasks land in an Inbox lane for you to triage. Skip it and nothing leaves your Mac.</p>
       </div>
       <div class="feature">
         <span class="icon">✅</span>
@@ -284,20 +282,22 @@
 
   <div class="privacy-band">
     <div class="privacy-inner">
-      <div><h4>🔒 100% local</h4><p>All data stays on your Mac</p></div>
-      <div><h4>🚫 No accounts</h4><p>No sign-in, ever</p></div>
-      <div><h4>📡 No network calls</h4><p>No analytics, no telemetry</p></div>
+      <div><h4>🔒 Local-first</h4><p>Your data lives on your Mac</p></div>
+      <div><h4>🔄 Optional Google Tasks</h4><p>Connect only if you want sync</p></div>
+      <div><h4>📡 No tracking</h4><p>No analytics, no telemetry</p></div>
       <div><h4>💸 Free &amp; open source</h4><p>MIT licensed on GitHub</p></div>
     </div>
   </div>
 </main>
 
 <footer>
-  <div>The app has no accounts, cloud sync, or telemetry. Site visits are counted by visitor-badge.laobi.icu.</div>
+  <div>Local-first. Optional Google Tasks sync. No tracking. Just a fast task list, one keystroke away.</div>
   <div class="footer-links">
     <a href="https://github.com/thamaraiselvam/tasknxt">GitHub</a>
     <a href="https://github.com/thamaraiselvam/tasknxt/releases/latest">Releases</a>
     <a href="https://github.com/thamaraiselvam/tasknxt/blob/main/LICENSE">MIT License</a>
+    <a href="privacy.html">Privacy</a>
+    <a href="terms.html">Terms</a>
   </div>
 </footer>
 
