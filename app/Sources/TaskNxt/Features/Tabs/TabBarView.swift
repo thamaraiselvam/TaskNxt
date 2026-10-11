@@ -10,12 +10,46 @@ struct TabBarView: View {
     @State private var isAddingTab = false
     @State private var newTabName = ""
     @State private var errorMessage: String?
+    @State private var metrics = TabScrollMetrics.Value()
+    @State private var viewportWidth: CGFloat = 0
 
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             HStack(spacing: 4) {
-                ForEach(appState.store.tabs.sorted(by: { $0.order < $1.order })) { tab in
-                    tabButton(for: tab)
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 4) {
+                        ForEach(appState.store.tabs.sorted(by: { $0.order < $1.order })) { tab in
+                            tabButton(for: tab)
+                        }
+                    }
+                    .background(GeometryReader { geo in
+                        Color.clear.preference(
+                            key: TabScrollMetrics.self,
+                            value: .init(contentWidth: geo.size.width, offset: -geo.frame(in: .named("tabScroll")).minX)
+                        )
+                    })
+                }
+                .coordinateSpace(name: "tabScroll")
+                .background(GeometryReader { geo in
+                    Color.clear.onAppear { viewportWidth = geo.size.width }
+                        .onChange(of: geo.size.width) { viewportWidth = $0 }
+                })
+                .onPreferenceChange(TabScrollMetrics.self) { metrics = $0 }
+                // Fade + chevron while more tabs are hidden to the right.
+                .overlay(alignment: .trailing) {
+                    if metrics.contentWidth - metrics.offset - viewportWidth > 1 {
+                        HStack(spacing: 0) {
+                            LinearGradient(colors: [.clear, Color(nsColor: .windowBackgroundColor)], startPoint: .leading, endPoint: .trailing)
+                                .frame(width: 18)
+                            Image(systemName: "chevron.right")
+                                .font(.caption2.weight(.bold))
+                                .foregroundStyle(.secondary)
+                                .padding(.trailing, 2)
+                                .background(Color(nsColor: .windowBackgroundColor))
+                        }
+                        .allowsHitTesting(false)
+                        .transition(.opacity)
+                    }
                 }
 
                 Button {
@@ -25,10 +59,10 @@ struct TabBarView: View {
                 }
                 .buttonStyle(.plain)
                 .foregroundStyle(.secondary)
-                .disabled(appState.store.tabs.count >= AppState.maxTabs)
+                .disabled(appState.localTabCount >= AppState.maxTabs)
                 .help(
-                    appState.store.tabs.count >= AppState.maxTabs
-                        ? "Maximum of 4 tabs reached"
+                    appState.localTabCount >= AppState.maxTabs
+                        ? "Maximum of 4 local tabs reached"
                         : "Add a tab"
                 )
             }
@@ -91,4 +125,13 @@ struct TabBarView: View {
         }
         .buttonStyle(.plain)
     }
+}
+
+private struct TabScrollMetrics: PreferenceKey {
+    struct Value: Equatable {
+        var contentWidth: CGFloat = 0
+        var offset: CGFloat = 0
+    }
+    static var defaultValue = Value()
+    static func reduce(value: inout Value, nextValue: () -> Value) { value = nextValue() }
 }

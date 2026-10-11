@@ -5,7 +5,7 @@
 <h1 align="center">TaskNxt</h1>
 
 <p align="center">
-  <strong>Three lanes. One popover. Zero accounts.</strong><br>
+  <strong>Three lanes. One popover. Google Tasks, if you want it.</strong><br>
   <em>Now, Nxt, and Ltr — organize what matters today, what's coming next, and what can wait.</em>
 </p>
 
@@ -17,7 +17,7 @@
   <img src="https://img.shields.io/badge/macOS%2013+-111?style=flat-square&logo=apple&logoColor=fff" alt="macOS 13+">
   <img src="https://img.shields.io/badge/Swift%205.9-111?style=flat-square&logo=swift&logoColor=F05138" alt="Swift 5.9">
   <img src="https://img.shields.io/badge/Free-00D4AA?style=flat-square" alt="Free">
-  <img src="https://img.shields.io/badge/100%25%20Local-111?style=flat-square" alt="100% Local">
+  <img src="https://img.shields.io/badge/Local--first-111?style=flat-square" alt="Local-first">
 </p>
 
 <p align="center">
@@ -68,18 +68,19 @@ Prefer to build it yourself? See [Build from source](#build-from-source) below.
 
 ## Features
 
-- 🗂️ **Three fixed lanes per tab** — Now / Nxt / Ltr — for quick priority triage
+- 🗂️ **Fixed lanes per tab** — Now / Nxt / Ltr for priority triage, plus an **Inbox** lane for unclassified tasks (shown when it has tasks)
 - 🪟 **Menu bar only** — no Dock icon, no app window, just a popover
 - ⌨️ **Global hotkey** — summon TaskNxt from any app with a configurable shortcut
 - 🔢 **Pending-count badge** — the menu bar icon shows the active tab's incomplete task count
-- 📑 **Up to 4 tabs** — separate Work, Personal, or any workspaces you like
+- 📑 **Up to 4 local tabs** — separate Work, Personal, or any workspaces you like (Google list tabs don't count toward the limit); the tab bar scrolls when there are more
 - ✅ **Drag-and-drop** reordering, within and across lanes
 - ✏️ **Inline editing** — click a task's text to rename it in place
 - ⏳ **Auto-cleanup** — completed tasks show a countdown and purge automatically (configurable retention)
 - 🗄️ **Optional archive** — keep a browsable, restorable history of completed tasks instead of deleting them
-- ⚙️ **Standalone Settings window** — General, Shortcuts, Tabs, and About sections
+- ⚙️ **Standalone Settings window** — General, Shortcuts, Tabs, Google, and About sections
 - 🌗 **Light & dark mode** — follows your system appearance live
-- 🔒 **100% local** — all data stays on your Mac; no network calls, no sign-in, no analytics
+- 🔄 **Google Tasks sync (optional)** — every Google task list becomes a tab; changes sync both ways (see [Google Tasks sync](#google-tasks-sync-optional))
+- 🔒 **Local-first** — all data stays on your Mac; no analytics. The only network use is the optional Google Tasks sync (off until you connect)
 - 🚀 **Launch at login** support
 
 <br>
@@ -91,11 +92,12 @@ Prefer to build it yourself? See [Build from source](#build-from-source) below.
 | Open popover | Click the checklist icon in the menu bar |
 | Quick open | Global hotkey (default `⌃Q` / Control+Q) |
 | Add a task | Click "+ add to now..." (or nxt / ltr) in a lane |
-| Reorder / retriage | Drag a task within or across lanes |
+| Reorder / retriage | Drag a task within or across lanes (including Inbox → Now/Nxt/Ltr) |
 | Rename a task | Click its text, edit, press Enter (Esc cancels) |
 | Archive or delete a task | Right-click a task for "Archive Now" / "Delete", or use the hover "x" |
 | View archived tasks | Click the archive icon (📦) in the popover header |
 | Change hotkey, tabs, retention, archive | Click the gear icon → opens the Settings window (General / Shortcuts / Tabs / About) |
+| Sync Google Tasks | Settings → Google → Connect; choose lists and sync frequency, or press Sync Now |
 | Quit TaskNxt | Settings → General → Quit |
 
 <br>
@@ -175,13 +177,45 @@ install.
 - **Settings** — A standalone window (opened via the gear icon) with General
   (launch at login, retention, archive toggle, quit), Shortcuts (global hotkey
   recorder), Tabs (tab management), and About (version, links, bug report).
-- **Privacy** — All tabs, tasks, settings, and the archive are stored only in local
-  on-device storage — there's no account, no cloud sync, and no telemetry.
+- **Google Tasks sync** — Optional. Connecting a Google account turns each task
+  list into a tab (new tasks arrive in the Inbox lane); title, done state, due date,
+  and creating/deleting tasks sync both ways, newest edit wins. Lane and order stay
+  local. Sync runs at a chosen interval (default daily), when the popover opens,
+  and shortly after you edit a task.
+- **Privacy** — All tabs, tasks, settings, and the archive are stored in local
+  on-device storage and there is no telemetry. The only network traffic is the
+  optional Google Tasks sync, directly between your Mac and Google. See the
+  [Privacy Policy](https://thamaraiselvam.github.io/TaskNxt/privacy.html) and
+  [Terms of Service](https://thamaraiselvam.github.io/TaskNxt/terms.html).
 
 See `openspec/specs/` for the full behavioral specification of each capability
-(`task-management`, `tab-management`, `menu-bar-shell`, `settings`, `local-persistence`).
+(`task-management`, `tab-management`, `menu-bar-shell`, `settings`, `local-persistence`);
+the Google integration is specified in `openspec/changes/google-tasks-sync/`.
 Additional capabilities (task archive, active-tab badge, inline editing, redesigned
 settings) are tracked as change proposals under `openspec/changes/`.
+
+<br>
+
+## Google Tasks sync (optional)
+
+Off until you connect. In **Settings → Google**, press **Connect** and sign in with Google.
+
+- **Tabs from lists** — each Google task list becomes its own tab, named after the list. Turn individual lists off (or back on) with the toggles; a list you turn off keeps its tab as local data and is not recreated.
+- **Inbox lane** — tasks arriving from Google land in **Inbox**. Drag them into Now, Nxt, or Ltr. Lane and order are local only and never sent to Google.
+- **Two-way** — creating, renaming, completing, deleting, and due dates sync both ways; the most recent edit wins. Completing a task here marks it completed in Google within a few seconds.
+- **Frequency** — choose every minute, 5 minutes, 15 minutes, hour, or day (default). Syncing also runs on launch, when the popover opens, and via **Sync Now**.
+- **Disconnect** — revokes TaskNxt's access at Google and removes the token; your tabs and tasks stay as local data.
+
+**What's stored:** the sign-in token is kept only in the macOS Keychain. `store.json` holds your tasks and the account email, never credentials. Only Google Tasks access plus your email address are requested. Details: [Privacy Policy](https://thamaraiselvam.github.io/TaskNxt/privacy.html) · [Terms of Service](https://thamaraiselvam.github.io/TaskNxt/terms.html).
+
+### Setting up Google sign-in when building from source
+
+1. In [Google Cloud Console](https://console.cloud.google.com), create a project and enable the **Google Tasks API**.
+2. Under **Google Auth Platform**, set up the consent screen (External), add the scopes `…/auth/tasks`, `openid`, and `email`, and add your Google account as a **Test user**.
+3. Create an OAuth client of type **iOS** with bundle ID `com.tasknxt.app`, and put its client ID in `GoogleClientID` in `app/Sources/TaskNxt/App/Info.plist`. The client ID is public; there is no client secret.
+4. Rebuild and connect from Settings → Google.
+
+While the app is unverified by Google, only listed test users can sign in, sign-in shows an "unverified app" warning, and tokens expire after about 7 days (you'll be asked to reconnect).
 
 <br>
 
@@ -207,5 +241,5 @@ MIT — see [LICENSE](LICENSE).
 ---
 
 <p align="center">
-  <sub>No accounts. No cloud. No tracking. Just a fast local task list, one keystroke away.</sub>
+  <sub>Local-first. No tracking. Just a fast task list, one keystroke away. · <a href="https://thamaraiselvam.github.io/TaskNxt/privacy.html">Privacy</a> · <a href="https://thamaraiselvam.github.io/TaskNxt/terms.html">Terms</a></sub>
 </p>

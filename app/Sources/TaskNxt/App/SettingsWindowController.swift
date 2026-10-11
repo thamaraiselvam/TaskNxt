@@ -13,14 +13,14 @@ final class SettingsWindowController: NSObject, NSWindowDelegate {
 
     private var window: NSWindow?
 
-    func show(appState: AppState) {
+    func show(appState: AppState, googleSync: GoogleTasksSync) {
         if let window {
             NSApp.activate(ignoringOtherApps: true)
             window.makeKeyAndOrderFront(nil)
             return
         }
 
-        let hosting = NSHostingController(rootView: SettingsRootView().environmentObject(appState))
+        let hosting = NSHostingController(rootView: SettingsRootView().environmentObject(appState).environmentObject(googleSync))
         // `NSHostingController`'s default `sizingOptions` lets it
         // auto-resize its window to match the SwiftUI content's intrinsic
         // size on every layout pass. With that enabled *and* us also

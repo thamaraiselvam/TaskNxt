@@ -6,6 +6,7 @@ import TaskNxtCore
 /// (spec: menu-bar-shell, task-management, tab-management).
 struct PopoverRootView: View {
     @EnvironmentObject private var appState: AppState
+    @EnvironmentObject private var googleSync: GoogleTasksSync
     @State private var isShowingArchive = false
 
     private var activeTab: AppTab? {
@@ -55,7 +56,8 @@ struct PopoverRootView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 4) {
                     if let tab = activeTab {
-                        ForEach(Lane.allCases) { lane in
+                        // Inbox is hidden while empty (spec: task-management).
+                        ForEach(Lane.allCases.filter { $0 != .inbox || !(tab.tasks[.inbox]?.isEmpty ?? true) }) { lane in
                             LaneView(lane: lane, tabID: tab.id)
                         }
                     } else {
@@ -73,7 +75,10 @@ struct PopoverRootView: View {
             .padding(.bottom, 8)
         }
         .frame(width: 340, height: 480)
-        .onAppear { appState.sweepExpiredTasks() }
+        .onAppear {
+            appState.sweepExpiredTasks()
+            Task { await googleSync.syncNow() }
+        }
     }
 
     private var hotKeyHint: String {

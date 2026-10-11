@@ -44,6 +44,6 @@ enum AppInfo {
     static let websiteURL = URL(string: "https://github.com/thamaraiselvam/tasknxt")!
     static let bugReportURL = URL(string: "https://github.com/thamaraiselvam/tasknxt/issues/new")!
     static let aboutDescription =
-        "TaskNxt is a free, local-only menu bar to-do app. Organize tasks into Now, " +
-        "Nxt, and Ltr lanes across multiple tabs, right from your menu bar."
+        "TaskNxt is a free, local-first menu bar to-do app. Organize tasks into Now, " +
+        "Nxt, and Ltr lanes across multiple tabs, with optional Google Tasks sync."
 }

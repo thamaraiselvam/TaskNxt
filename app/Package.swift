@@ -1,7 +1,7 @@
 // swift-tools-version: 5.9
 import PackageDescription
 
-// TaskNxt — a free, local-only, native macOS menu bar to-do app.
+// TaskNxt — a free, local-first, native macOS menu bar to-do app (optional Google Tasks sync).
 //
 // Split into two targets:
 //  - TaskNxtCore: models, persistence, and all app state/business logic.

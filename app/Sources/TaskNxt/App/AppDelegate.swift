@@ -17,6 +17,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var popover: NSPopover?
     private var cancellables = Set<AnyCancellable>()
     let appState = AppState()
+    lazy var googleSync = GoogleTasksSync(
+        appState: appState,
+        clientID: Bundle.main.object(forInfoDictionaryKey: "GoogleClientID") as? String
+    )
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         NSApp.setActivationPolicy(.accessory) // belt-and-suspenders with LSUIElement: no Dock icon
@@ -30,7 +34,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         popover.behavior = .transient // closes automatically on outside click
         popover.contentSize = NSSize(width: 340, height: 480)
         popover.contentViewController = NSHostingController(
-            rootView: PopoverRootView().environmentObject(appState)
+            rootView: PopoverRootView().environmentObject(appState).environmentObject(googleSync)
         )
         self.popover = popover
 
@@ -53,6 +57,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             }
             .store(in: &cancellables)
         updateBadge()
+        googleSync.start()
     }
 
     private func updateBadge() {
@@ -113,7 +118,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     private func openSettingsWindow() {
-        SettingsWindowController.shared.show(appState: appState)
+        SettingsWindowController.shared.show(appState: appState, googleSync: googleSync)
     }
 
     // The settings window is the app's only real `NSWindow`; closing it

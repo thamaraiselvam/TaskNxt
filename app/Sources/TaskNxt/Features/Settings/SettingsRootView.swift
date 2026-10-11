@@ -10,6 +10,7 @@ struct SettingsRootView: View {
         case general = "General"
         case shortcuts = "Shortcuts"
         case tabs = "Tabs"
+        case google = "Google"
         case about = "About"
 
         var id: String { rawValue }
@@ -19,6 +20,7 @@ struct SettingsRootView: View {
             case .general: "gearshape"
             case .shortcuts: "command"
             case .tabs: "square.on.square"
+            case .google: "checklist"
             case .about: "info.circle"
             }
         }
@@ -39,6 +41,7 @@ struct SettingsRootView: View {
                 case .general: GeneralSettingsView()
                 case .shortcuts: ShortcutsSettingsView()
                 case .tabs: TabManagementView()
+                case .google: GoogleTasksSettingsView()
                 case .about: AboutView()
                 }
             }

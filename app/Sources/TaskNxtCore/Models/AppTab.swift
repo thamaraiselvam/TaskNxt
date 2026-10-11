@@ -8,11 +8,23 @@ public struct AppTab: Identifiable, Equatable {
     /// Position among sibling tabs; lower sorts first.
     public var order: Int
     public var tasks: [Lane: [TaskItem]]
+    /// Google task list this tab syncs with (spec: google-tasks-sync); nil if local-only.
+    public var googleListID: String?
+    /// Last successful sync time, the "changed since" cutoff for both pull and push.
+    public var googleLastSync: Date?
+    /// Google ids of linked tasks deleted locally and not yet deleted remotely.
+    public var pendingDeletes: [String]
 
-    public init(id: UUID = UUID(), name: String, order: Int, tasks: [Lane: [TaskItem]]? = nil) {
+    public init(
+        id: UUID = UUID(), name: String, order: Int, tasks: [Lane: [TaskItem]]? = nil,
+        googleListID: String? = nil, googleLastSync: Date? = nil, pendingDeletes: [String] = []
+    ) {
         self.id = id
         self.name = name
         self.order = order
+        self.googleListID = googleListID
+        self.googleLastSync = googleLastSync
+        self.pendingDeletes = pendingDeletes
         self.tasks = tasks ?? Lane.allCases.reduce(into: [:]) { $0[$1] = [] }
     }
 
@@ -30,7 +42,7 @@ public struct AppTab: Identifiable, Equatable {
 }
 
 // Custom `Codable` so the on-disk shape of `tasks` is a fixed, explicit
-// `{"now": [...], "nxt": [...], "ltr": [...]}` JSON object, independent of
+// `{"inbox": [...], "now": [...], ...}` JSON object, independent of
 // however a given Foundation version happens to serialize
 // `Dictionary<Lane, [TaskItem]>` internally. Relying on the synthesized
 // conformance is fragile across toolchains: older Foundation only used a
@@ -46,7 +58,7 @@ public struct AppTab: Identifiable, Equatable {
 // entirely.
 extension AppTab: Codable {
     private enum CodingKeys: String, CodingKey {
-        case id, name, order, tasks
+        case id, name, order, tasks, googleListID, googleLastSync, pendingDeletes
     }
 
     public init(from decoder: Decoder) throws {
@@ -54,6 +66,9 @@ extension AppTab: Codable {
         id = try container.decode(UUID.self, forKey: .id)
         name = try container.decode(String.self, forKey: .name)
         order = try container.decode(Int.self, forKey: .order)
+        googleListID = try container.decodeIfPresent(String.self, forKey: .googleListID)
+        googleLastSync = try container.decodeIfPresent(Date.self, forKey: .googleLastSync)
+        pendingDeletes = try container.decodeIfPresent([String].self, forKey: .pendingDeletes) ?? []
         let byRawValue = try container.decode([String: [TaskItem]].self, forKey: .tasks)
         tasks = Lane.allCases.reduce(into: [:]) { result, lane in
             result[lane] = byRawValue[lane.rawValue] ?? []
@@ -65,6 +80,9 @@ extension AppTab: Codable {
         try container.encode(id, forKey: .id)
         try container.encode(name, forKey: .name)
         try container.encode(order, forKey: .order)
+        try container.encodeIfPresent(googleListID, forKey: .googleListID)
+        try container.encodeIfPresent(googleLastSync, forKey: .googleLastSync)
+        try container.encode(pendingDeletes, forKey: .pendingDeletes)
         let byRawValue = Dictionary(uniqueKeysWithValues: tasks.map { ($0.key.rawValue, $0.value) })
         try container.encode(byRawValue, forKey: .tasks)
     }

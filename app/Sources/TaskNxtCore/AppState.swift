@@ -31,7 +31,11 @@ public final class AppState: ObservableObject {
     @Published public private(set) var store: Store
     @Published public var activeTabID: UUID?
 
+    /// Called after any user edit to tasks, so Google sync can push soon after.
+    public var onTaskEdited: (() -> Void)?
+
     private let localStore: LocalStore
+    private var loadTask: Task<Void, Never>?
     private var sweepTimer: Timer?
     public let globalHotKey: GlobalHotKey
     private var togglePopover: (() -> Void)?
@@ -50,7 +54,7 @@ public final class AppState: ObservableObject {
             // AppDelegate's synchronous init call).
             Task { @MainActor in self?.togglePopover?() }
         }
-        Task { await loadFromDisk() }
+        loadTask = Task { await loadFromDisk() }
     }
 
     /// Lets the menu bar shell hand this state a way to toggle the popover
@@ -71,6 +75,13 @@ public final class AppState: ObservableObject {
         openSettings?()
     }
 
+    /// Suspends until `store.json` has been read. Anything that mutates the
+    /// store at startup (e.g. Google sync) must wait, or its changes would be
+    /// overwritten by the load -- or overwrite the file before it is read.
+    public func waitUntilLoaded() async {
+        await loadTask?.value
+    }
+
     private func loadFromDisk() async {
         let loaded = await localStore.load()
         store = loaded
@@ -87,8 +98,11 @@ public final class AppState: ObservableObject {
 
     // MARK: - Tabs
 
+    /// Tabs linked to Google lists don't count toward `maxTabs`.
+    public var localTabCount: Int { store.tabs.filter { $0.googleListID == nil }.count }
+
     public func addTab(named name: String) throws {
-        guard store.tabs.count < Self.maxTabs else { throw TabActionError.maximumTabsReached }
+        guard localTabCount < Self.maxTabs else { throw TabActionError.maximumTabsReached }
         let tab = AppTab(name: name, order: store.tabs.count)
         store.tabs.append(tab)
         activeTabID = tab.id
@@ -144,6 +158,7 @@ public final class AppState: ObservableObject {
         let task = TaskItem(text: trimmed, order: order)
         store.tabs[idx].tasks[lane, default: []].append(task)
         persist()
+        onTaskEdited?()
     }
 
     public func toggleTask(_ taskID: UUID, lane: Lane, tabID: UUID) {
@@ -155,14 +170,21 @@ public final class AppState: ObservableObject {
         } else {
             tasks[taskIdx].completedAt = Date()
         }
+        tasks[taskIdx].updatedAt = Date()
         store.tabs[tabIdx].tasks[lane] = tasks
         persist()
+        onTaskEdited?()
     }
 
     public func deleteTask(_ taskID: UUID, lane: Lane, tabID: UUID) {
         guard let tabIdx = tabIndex(tabID) else { return }
+        // Remember linked tasks so sync can delete them remotely too.
+        if let gid = store.tabs[tabIdx].tasks[lane]?.first(where: { $0.id == taskID })?.googleID {
+            store.tabs[tabIdx].pendingDeletes.append(gid)
+        }
         store.tabs[tabIdx].tasks[lane]?.removeAll { $0.id == taskID }
         persist()
+        onTaskEdited?()
     }
 
     /// Updates a task's text in place (spec: task-management, "Inline task
@@ -175,7 +197,9 @@ public final class AppState: ObservableObject {
               let taskIdx = store.tabs[tabIdx].tasks[lane]?.firstIndex(where: { $0.id == taskID })
         else { return }
         store.tabs[tabIdx].tasks[lane]![taskIdx].text = trimmed
+        store.tabs[tabIdx].tasks[lane]![taskIdx].updatedAt = Date()
         persist()
+        onTaskEdited?()
     }
 
     /// Sets or clears a task's due date. Never touches `order` (spec:
@@ -185,6 +209,67 @@ public final class AppState: ObservableObject {
               let taskIdx = store.tabs[tabIdx].tasks[lane]?.firstIndex(where: { $0.id == taskID })
         else { return }
         store.tabs[tabIdx].tasks[lane]![taskIdx].dueDate = dueDate
+        store.tabs[tabIdx].tasks[lane]![taskIdx].updatedAt = Date()
+        persist()
+        onTaskEdited?()
+    }
+
+    /// Moves a task to `lane`, placing it before `beforeID` (or at the end
+    /// if nil/not found). Covers reorder-within-lane and cross-lane moves;
+    /// completion state is untouched (spec: task-management,
+    /// "Drag-and-drop reordering"). Lane/order are local-only, so this
+    /// does not bump `updatedAt` (it must not trigger a Google push).
+    public func moveTask(_ taskID: UUID, tabID: UUID, to lane: Lane, before beforeID: UUID? = nil) {
+        guard let tabIdx = tabIndex(tabID),
+              let source = Lane.allCases.first(where: { store.tabs[tabIdx].tasks[$0]?.contains { $0.id == taskID } == true }),
+              taskID != beforeID
+        else { return }
+        var sourceTasks = (store.tabs[tabIdx].tasks[source] ?? []).sorted { $0.order < $1.order }
+        let task = sourceTasks.remove(at: sourceTasks.firstIndex { $0.id == taskID }!)
+        var dest = source == lane ? sourceTasks : (store.tabs[tabIdx].tasks[lane] ?? []).sorted { $0.order < $1.order }
+        let at = beforeID.flatMap { id in dest.firstIndex { $0.id == id } } ?? dest.count
+        dest.insert(task, at: at)
+        for i in dest.indices { dest[i].order = i }
+        if source != lane {
+            for i in sourceTasks.indices { sourceTasks[i].order = i }
+            store.tabs[tabIdx].tasks[source] = sourceTasks
+        }
+        store.tabs[tabIdx].tasks[lane] = dest
+        persist()
+    }
+
+    /// Generic in-place edit of one tab for the sync layer; persists once.
+    public func updateTab(_ id: UUID, _ mutate: (inout AppTab) -> Void) {
+        guard let idx = tabIndex(id) else { return }
+        mutate(&store.tabs[idx])
+        persist()
+    }
+
+    /// Adds a tab linked to a Google list. Exempt from the local tab cap.
+    /// Does not switch the active tab (it may be created in the background).
+    public func addGoogleTab(named name: String, listID: String) {
+        store.tabs.append(AppTab(name: name, order: store.tabs.count, googleListID: listID))
+        persist()
+    }
+
+    /// Records list ids as offered, so they are never auto-created again.
+    public func markGoogleListsKnown(_ ids: [String]) {
+        store.settings.googleKnownListIDs = Array(Set(store.settings.googleKnownListIDs).union(ids))
+        persist()
+    }
+
+    public func setGoogleSyncInterval(_ seconds: Int) {
+        store.settings.googleSyncInterval = max(60, seconds)
+        persist()
+    }
+
+    public func clearGoogleKnownLists() {
+        store.settings.googleKnownListIDs = []
+        persist()
+    }
+
+    public func setGoogleAccountEmail(_ email: String?) {
+        store.settings.googleAccountEmail = email
         persist()
     }
 
@@ -259,6 +344,8 @@ public final class AppState: ObservableObject {
                 let before = tasks.count
                 let expiring = tasks.filter { task in
                     guard let completedAt = task.completedAt else { return false }
+                    // Keep a completion Google hasn't received yet; purge after it syncs.
+                    if task.googleID != nil, task.updatedAt > (task.syncedAt ?? .distantPast) { return false }
                     return RetentionPolicy.isExpired(completedAt: completedAt, retentionDays: retentionDays)
                 }
                 if !expiring.isEmpty {

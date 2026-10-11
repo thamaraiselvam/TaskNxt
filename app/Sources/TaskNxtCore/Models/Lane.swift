@@ -1,9 +1,11 @@
 import Foundation
 
-/// The three fixed priority lanes every tab has. Order is fixed and
-/// meaningful: Now, then Nxt, then Ltr — lanes cannot be added, removed,
-/// or reordered (spec: task-management, "Three fixed lanes per tab").
+/// The four fixed lanes every tab has. Order is fixed and meaningful:
+/// Inbox (unclassified, e.g. freshly synced from Google Tasks), then Now,
+/// Nxt, Ltr — lanes cannot be added, removed, or reordered (spec:
+/// task-management, "Three fixed lanes per tab").
 public enum Lane: String, Codable, CaseIterable, Identifiable {
+    case inbox
     case now
     case nxt
     case ltr
@@ -12,6 +14,7 @@ public enum Lane: String, Codable, CaseIterable, Identifiable {
 
     public var displayName: String {
         switch self {
+        case .inbox: return "Inbox"
         case .now: return "Now"
         case .nxt: return "Nxt"
         case .ltr: return "Ltr"

@@ -5,6 +5,7 @@ private extension Lane {
     /// Accent color matching the reference design's palette for each lane.
     var accentColor: Color {
         switch self {
+        case .inbox: return .secondary
         case .now: return Color(red: 0.91, green: 0.64, blue: 0.29)  // amber
         case .nxt: return Color(red: 0.36, green: 0.55, blue: 0.94)  // blue
         case .ltr: return Color(red: 0.61, green: 0.48, blue: 0.86)  // purple
@@ -43,6 +44,11 @@ struct LaneView: View {
 
             ForEach(tasks.sorted(by: { $0.order < $1.order })) { task in
                 TaskRowView(task: task, lane: lane, tabID: tabID)
+                    .draggable(task.id.uuidString)
+                    // Dropping on a row inserts before it (reorder / cross-lane).
+                    .dropDestination(for: String.self) { items, _ in
+                        drop(items, before: task.id)
+                    }
             }
 
             HStack(spacing: 6) {
@@ -70,5 +76,16 @@ struct LaneView: View {
                 isAddFieldFocused = true
             }
         }
+        .contentShape(Rectangle())
+        // Dropping anywhere else on the lane (incl. empty lanes) appends.
+        .dropDestination(for: String.self) { items, _ in
+            drop(items, before: nil)
+        }
+    }
+
+    private func drop(_ items: [String], before: UUID?) -> Bool {
+        guard let id = items.first.flatMap(UUID.init(uuidString:)) else { return false }
+        appState.moveTask(id, tabID: tabID, to: lane, before: before)
+        return true
     }
 }

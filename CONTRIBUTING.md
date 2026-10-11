@@ -52,8 +52,10 @@ A few key decisions worth knowing before diving in:
   mixing it into views.
 - **Three fixed lanes per tab** — Now / Nxt / Ltr — this ordering is a core
   product decision, not just a default.
-- **100% local persistence** — no network calls, no accounts, no telemetry.
-  New features should preserve this invariant.
+- **Local-first persistence** — data lives on the device and works fully
+  offline. The only network use is the optional, opt-in Google Tasks sync;
+  no telemetry, and no account is ever required. New features should preserve
+  this invariant.
 - **Spec-driven changes** — behavioral specs live under `openspec/specs/`,
   and in-flight proposals live under `openspec/changes/`. Check there for the
   current spec of the capability you're touching.
@@ -68,7 +70,7 @@ Good candidates for contribution:
 - Performance or reliability improvements.
 
 The design of TaskNxt is intentionally minimal and restrained (three lanes,
-menu bar only, no accounts). If you are considering UI changes or new
+menu bar only, no required accounts). If you are considering UI changes or new
 features, please open an issue first to discuss the approach before writing
 code.
 

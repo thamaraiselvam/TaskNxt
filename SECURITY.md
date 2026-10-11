@@ -1,11 +1,13 @@
 # Security Policy
 
 TaskNxt is a menu bar task list. All tabs, tasks, settings, and the archive
-are stored only in local, on-device storage — there is no account, no cloud
-sync, no network calls, and no telemetry. Please keep that in mind when
-assessing impact: the primary security concerns are local data handling
-(e.g. how tasks are persisted on disk) rather than network-facing attack
-surface.
+are stored in local, on-device storage, and there is no telemetry. The only
+network use is the optional Google Tasks sync: it talks directly to Google
+over HTTPS, keeps its sign-in token in the macOS Keychain, and is off until
+you connect. Please keep that in mind when assessing impact: the primary
+security concerns are local data handling (e.g. how tasks are persisted on
+disk) and the OAuth sign-in/sync code rather than any developer-run service,
+since there is none.
 
 ## Supported versions
 

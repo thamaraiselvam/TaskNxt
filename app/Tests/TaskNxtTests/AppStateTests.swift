@@ -185,3 +185,69 @@ struct GlobalHotKeyTests {
         #expect(!claimed)
     }
 }
+
+@MainActor
+struct AppStateMoveTaskTests {
+    private func makeState() async -> (AppState, UUID) {
+        let url = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString)
+            .appendingPathComponent("store.json")
+        let state = AppState(localStore: LocalStore(fileURL: url))
+        await state.waitUntilLoaded()
+        return (state, state.store.tabs[0].id)
+    }
+
+    private func texts(_ s: AppState, _ lane: Lane) -> [String] {
+        (s.store.tabs[0].tasks[lane] ?? []).sorted { $0.order < $1.order }.map(\.text)
+    }
+
+    @Test func reorderWithinLane() async {
+        let (s, tab) = await makeState()
+        ["A", "B", "C"].forEach { s.addTask(text: $0, lane: .now, tabID: tab) }
+        let c = s.store.tabs[0].tasks[.now]![2].id
+        let a = s.store.tabs[0].tasks[.now]![0].id
+        s.moveTask(c, tabID: tab, to: .now, before: a)
+        #expect(texts(s, .now) == ["C", "A", "B"])
+    }
+
+    @Test func moveAcrossLanesKeepsCompletionAndReindexes() async {
+        let (s, tab) = await makeState()
+        s.addTask(text: "X", lane: .inbox, tabID: tab)
+        s.addTask(text: "Y", lane: .inbox, tabID: tab)
+        let x = s.store.tabs[0].tasks[.inbox]![0].id
+        s.toggleTask(x, lane: .inbox, tabID: tab)
+        s.moveTask(x, tabID: tab, to: .ltr)  // empty lane
+        #expect(texts(s, .ltr) == ["X"])
+        #expect(texts(s, .inbox) == ["Y"])
+        #expect(s.store.tabs[0].tasks[.inbox]![0].order == 0)
+        #expect(s.store.tabs[0].tasks[.ltr]![0].isDone)
+    }
+
+    @Test func movingDoesNotMarkTaskForSync() async {
+        let (s, tab) = await makeState()
+        s.addTask(text: "X", lane: .now, tabID: tab)
+        let before = s.store.tabs[0].tasks[.now]![0].updatedAt
+        s.moveTask(s.store.tabs[0].tasks[.now]![0].id, tabID: tab, to: .nxt)
+        #expect(s.store.tabs[0].tasks[.nxt]![0].updatedAt == before)
+    }
+
+    @Test func deletingLinkedTaskRecordsTombstone() async {
+        let (s, tab) = await makeState()
+        s.addTask(text: "X", lane: .now, tabID: tab)
+        s.updateTab(tab) { $0.tasks[.now]![0].googleID = "g1" }
+        s.deleteTask(s.store.tabs[0].tasks[.now]![0].id, lane: .now, tabID: tab)
+        #expect(s.store.tabs[0].pendingDeletes == ["g1"])
+    }
+
+    @Test func legacyStoreJSONStillDecodes() throws {
+        let json = """
+        {"schemaVersion":1,"settings":{"hotKey":{"keyCode":49,"modifierFlags":256},"launchAtLogin":false,"retentionDays":2},
+         "tabs":[{"id":"\(UUID())","name":"Work","order":0,
+           "tasks":{"now":[{"id":"\(UUID())","text":"Old","order":0}],"nxt":[],"ltr":[]}}]}
+        """
+        let store = try JSONDecoder().decode(Store.self, from: Data(json.utf8))
+        #expect(store.tabs[0].tasks[.now]?.first?.text == "Old")
+        #expect(store.tabs[0].tasks[.inbox]?.isEmpty == true)
+        #expect(store.tabs[0].googleListID == nil)
+    }
+}

@@ -65,6 +65,8 @@ public actor LocalStore {
 
         let tempURL = dir.appendingPathComponent(UUID().uuidString + ".tmp")
         try data.write(to: tempURL, options: .atomic)
+        // Owner-only: the file holds tasks and the linked Google email.
+        try FileManager.default.setAttributes([.posixPermissions: 0o600], ofItemAtPath: tempURL.path)
 
         if FileManager.default.fileExists(atPath: fileURL.path) {
             _ = try FileManager.default.replaceItemAt(fileURL, withItemAt: tempURL)

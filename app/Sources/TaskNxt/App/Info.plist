@@ -25,7 +25,9 @@
 	<string>13.0</string>
 	<key>NSHumanReadableCopyright</key>
 	<string>Free and open, no rights reserved to any third party.</string>
-	<!-- 100% local app: no network usage description needed since we never make network calls -->
+	<!-- OAuth client ID (type "iOS") for optional Google Tasks sync; empty disables sign-in. See README. -->
+	<key>GoogleClientID</key>
+	<string>171373737365-tm70ucqmbfvp9t2lea1o85qaepnt1b5o.apps.googleusercontent.com</string>
 	<key>NSSupportsAutomaticTermination</key>
 	<false/>
 	<key>NSSupportsSuddenTermination</key>
