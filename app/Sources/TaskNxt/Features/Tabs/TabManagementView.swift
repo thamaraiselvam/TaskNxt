@@ -36,18 +36,33 @@ private struct TabRow: View {
     @Binding var errorMessage: String?
     @State private var name: String = ""
     @State private var isEditing = false
+    @FocusState private var isNameFocused: Bool
 
     var body: some View {
         HStack {
             if isEditing {
                 TextField("Name", text: $name, onCommit: commitRename)
                     .textFieldStyle(.roundedBorder)
+                    .focused($isNameFocused)
+                    .onExitCommand { isEditing = false }
+                    // Focus is dropped if requested in the same update that
+                    // inserts the field (same fix as TaskRowView).
+                    .onAppear { DispatchQueue.main.async { isNameFocused = true } }
+                    // Clicking elsewhere commits, like pressing Enter.
+                    .onChange(of: isNameFocused) { focused in
+                        if !focused && isEditing { commitRename() }
+                    }
             } else {
                 Text(tab.name)
                 Spacer()
-                Button("Rename") {
+                Button {
                     name = tab.name
                     isEditing = true
+                } label: {
+                    Text("Rename")
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
                 .foregroundStyle(.secondary)
